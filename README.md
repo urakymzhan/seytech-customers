@@ -28,3 +28,20 @@ Seytech Customers CRUD application.
         * Tolgonai
 
     * Front End: Rest.
+
+## Day 1 - 10/28/2020
+    * Practice
+        * React Basics 
+            * Life-cycle methods
+            * Setstate
+            * Component vs Class
+            * Creating Data
+    
+    * Reactstrap(Bootstrap)
+    * CRUD Apps
+    * Project start/management
+
+    * Homework
+        * Learn React Router
+        * Clone from github
+ 

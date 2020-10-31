@@ -45,3 +45,16 @@ Seytech Customers CRUD application.
         * Learn React Router
         * Clone from github
  
+
+## Day 2 - 10/29/2020
+    * Practice
+        * React Basics 
+            * aaa
+    
+    * Reactstrap(Bootstrap)
+    * CRUD Apps
+    * Project start/management
+
+    * Homework
+        * aaa
+ 

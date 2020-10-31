@@ -9,3 +9,15 @@
     width: 50px;
     border-radius: 50px;
 }
+.row {
+    border-bottom: solid 1px #aaa;
+    padding: 5px;
+    padding-left: 20px;
+}
+.row .title {
+    font-weight: bold;
+}
+.row .title, .row .desc {
+    padding-left: 10px;
+    display: inline-block;
+}

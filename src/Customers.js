@@ -29,11 +29,12 @@ class Customers extends Component {
               customers.map(customer=>{
                 const { id, name, lastName, avatar, email, state, phone,
                 role, github, courses, payment, status } = customer;
+                const url = `/customer/${id}`;
                 return (
                 <tr>
                   <th scope="row">{id}</th>
                   <td><img src={avatar} /></td>
-                  <td> <a href="/customer/1">{name} {lastName}</a> </td>
+                  <td> <a href={url}>{name} {lastName}</a> </td>
                   <td>{state}</td>
                   <td>{email}</td>
                   <td>{phone}</td>

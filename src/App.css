@@ -21,3 +21,19 @@
     padding-left: 10px;
     display: inline-block;
 }
+.menu {
+    margin-top: 10px;
+}
+.menu li {
+    display: inline-block;
+    margin: 0 5px;
+    background-color: #ddd;
+    padding: 3px 10px;
+    border-radius: 10px;
+}
+.actions {
+    margin: 10px;
+}
+.actions button{
+    margin-right: 10px;
+}

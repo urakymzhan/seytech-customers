@@ -47,10 +47,16 @@ class App extends Component {
     }
   }
 
+  delete = (id) => {
+    //filter
+    const customers = this.state.customers.filter(item=>item.id !== id)
+    this.setState({customers})
+  }
+
   render(){
     return (
       <Router>
-          <ul>
+          <ul className="menu">
             <li> <Link to="/">Home</Link> </li>
             <li> <Link to="/about">About</Link> </li>
             <li> <Link to="/contact">Contact</Link> </li>
@@ -69,10 +75,13 @@ class App extends Component {
                 <div className="page">Contact Page</div>
               </Route>
               <Route path="/customers">
-                <Customers customers={this.state.customers} />
+                <Customers delete={this.delete} customers={this.state.customers} />
               </Route>
-              <Route path="/customer/:id">
-                <SingleCustomer customers={this.state.customers} />
+              <Route exact path="/customer/:id">
+                <SingleCustomer delete={this.delete} customers={this.state.customers} />
+              </Route>
+              <Route path="/customer/:id/:action">
+                <SingleCustomer delete={this.delete} customers={this.state.customers} />
               </Route>
             </Switch>
           </div>

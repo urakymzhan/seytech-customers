@@ -4,6 +4,7 @@ import Select from 'react-select';
 import {Button} from 'reactstrap';
 import {DebounceInput} from 'react-debounce-input';
 import { Link } from 'react-router-dom';
+import AddCustomer from './AddCustomer';
 import './App.css';
 
 const options = [
@@ -19,6 +20,7 @@ class Customers extends Component {
     this.state = {
       value: "",
       searchBy: "name",
+      showAddCustomer: false
     }
   }
 
@@ -38,12 +40,12 @@ class Customers extends Component {
 
   render(){
     const {customers} = this.props;
-    const {value, searchBy, timer} = this.state;
+    const {value, searchBy, timer, showAddCustomer} = this.state;
     const filteredC = customers.filter(item=>{
       return item[searchBy].toLowerCase().includes(value.toLowerCase())
     })
     return (
-      <div>
+      <div className="container">
           <div class="row">
             <div class="col">
               <DebounceInput
@@ -75,14 +77,14 @@ class Customers extends Component {
           </thead>
           <tbody>
             {
-              filteredC.map(customer=>{
+              filteredC.map((customer, ind)=>{
                 const { id, name, lastName, avatar, email, state, phone,
                 role, github, courses, payment, status } = customer;
                 const url = `/customer/${id}`;
                 const urlEdit = `/customer/${id}/edit`;
                 return (
                 <tr>
-                  <th scope="row">{id}</th>
+                  <th scope="row">{ind+1}</th>
                   <td><img src={avatar} /></td>
                   <td> <Link to={url}>{name} {lastName}</Link> </td>
                   <td>{state}</td>
@@ -92,7 +94,7 @@ class Customers extends Component {
                   <td>{courses}</td>
                   <td>{role}</td>
                   <td>{github}</td>
-                  <td>
+                  <td style={{width:"250px"}}>
                     <Button className="mr-3" color="primary">
                       <Link className="text-white" to={urlEdit}>Edit</Link>
                     </Button>
@@ -105,7 +107,7 @@ class Customers extends Component {
             
           </tbody>
         </Table>
-        <Button color="primary">Add new customer</Button>
+        <AddCustomer addCustomer={this.props.addCustomer} />
       </div>
     )
   }

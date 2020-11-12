@@ -53,6 +53,15 @@ class App extends Component {
     this.setState({customers})
   }
 
+  addCustomer = (customer) => {
+    debugger
+    const {customers} = this.state;
+    customer.id = customers.length + 1;
+    customers.unshift(customer)
+    this.setState({customers})
+    console.log(this.state.customers)
+  }
+
   render(){
     return (
       <Router>
@@ -75,7 +84,7 @@ class App extends Component {
                 <div className="page">Contact Page</div>
               </Route>
               <Route path="/customers">
-                <Customers delete={this.delete} customers={this.state.customers} />
+                <Customers addCustomer={this.addCustomer} delete={this.delete} customers={this.state.customers} />
               </Route>
               <Route exact path="/customer/:id">
                 <SingleCustomer delete={this.delete} customers={this.state.customers} />

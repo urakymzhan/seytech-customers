@@ -13,6 +13,17 @@ const options = [
   { value: 'github', label: 'Github' }
 ]
 
+const arrowUp = (
+  <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-arrow-up" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path fill-rule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z"/>
+  </svg>
+)
+const arrowDown = (
+  <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-arrow-down" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path fill-rule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"/>
+  </svg>
+)
+
 class Customers extends Component {
 
   constructor(){
@@ -20,6 +31,8 @@ class Customers extends Component {
     this.state = {
       value: "",
       searchBy: "name",
+      sortBy: null,
+      asc: false,
       showAddCustomer: false
     }
   }
@@ -38,14 +51,36 @@ class Customers extends Component {
     this.setState({searchBy: item.value})
   }
 
+  sortBy = (sortBy) => {
+    const {asc} = this.state
+    this.setState({asc:!asc, sortBy})
+  }
+
   render(){
     const {customers} = this.props;
-    const {value, searchBy, timer, showAddCustomer} = this.state;
+    const {value, searchBy, sortBy, asc} = this.state;
     const filteredC = customers.filter(item=>{
       return item[searchBy].toLowerCase().includes(value.toLowerCase())
     })
+    let arrowIcon;
+    if(sortBy !== null){
+      // sort
+      filteredC.sort((a,b)=>{
+        if(a.name > b.name){
+          return asc ? 1 : -1
+        } else if(b.name>a.name){
+          return asc ? -1 : 1
+        }
+        return 1
+      })
+      // sort icon
+      arrowIcon = asc ? arrowUp : arrowDown;
+    }
+
+    
+
     return (
-      <div className="container">
+      <div >
           <div class="row">
             <div class="col">
               <DebounceInput
@@ -64,14 +99,14 @@ class Customers extends Component {
             <tr>
               <th>#</th>
               <th>Avatar</th>
-              <th>Full Name</th>
+              <th onClick={()=>this.sortBy('name')}>Name {sortBy==='name' && arrowIcon}</th>
               <th>State</th>
               <th>Email</th>
               <th>Phone</th>
               <th>Payment</th>
               <th>Courses</th>
-              <th>Role</th>
-              <th>Github</th>
+              <th onClick={()=>this.sortBy('role')}>Role {sortBy==='role' && arrowIcon}</th>
+              <th onClick={()=>this.sortBy('github')}>Github {sortBy==='github' && arrowIcon}</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -86,14 +121,14 @@ class Customers extends Component {
                 <tr>
                   <th scope="row">{ind+1}</th>
                   <td><img src={avatar} /></td>
-                  <td> <Link to={url}>{name} {lastName}</Link> </td>
+                  <td> <Link to={url}>{name}</Link> </td>
                   <td>{state}</td>
                   <td>{email}</td>
                   <td>{phone}</td>
                   <td>{payment}</td>
                   <td>{courses}</td>
                   <td>{role}</td>
-                  <td>{github}</td>
+                  <td>{github} </td>
                   <td style={{width:"250px"}}>
                     <Button className="mr-3" color="primary">
                       <Link className="text-white" to={urlEdit}>Edit</Link>

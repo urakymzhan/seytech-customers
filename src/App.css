@@ -1,39 +1,51 @@
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
-.app {
-    width: 200px;
-    margin: 0 auto;
+
+/* customers */
+.customers {
+  margin: 5px 0;
+  padding: 10px;
 }
 .customers img {
-    width: 50px;
-    border-radius: 50px;
+  width: 50px;
+  height: 60px;
 }
-.row {
-    border-bottom: solid 1px #aaa;
-    padding: 5px;
-    padding-left: 20px;
+
+.user-search-container {
+  /* border: 1px solid; */
+  display: flex;
+  text-align: center;
 }
-.row .title {
-    font-weight: bold;
+.user-info-wrapper {
+  /* border: 1px solid red; */
+  flex: 1;
 }
-.row .title, .row .desc {
-    padding-left: 10px;
-    display: inline-block;
+/* search */
+.search-wrapper {
+  /* padding: 5px; */
+  /* border: 1px solid; */
+  flex: 1;
 }
+.search-input {
+  /* flex: 1; */
+  /* margin-right: 50px; */
+}
+.search-select {
+  /* flex: 2; */
+}
+
+/* menu */
 .menu {
-    margin-top: 10px;
+  padding: 10px 5px;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid gray;
 }
-.menu li {
-    display: inline-block;
-    margin: 0 5px;
-    background-color: #ddd;
-    padding: 3px 10px;
-    border-radius: 10px;
-}
-.actions {
-    margin: 10px;
-}
-.actions button{
-    margin-right: 10px;
+
+/* container */
+.container {
+  /* border: 1px solid blue; */
+  /* min-height: 100vh; */
 }

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Button, FormGroup, Label, Input } from 'reactstrap';
 import { withRouter } from 'react-router-dom';
 import { loginUrl } from './api';
+import Alert from 'reactstrap/lib/Alert';
 class Login extends Component {
   constructor() {
     super();
@@ -9,6 +10,7 @@ class Login extends Component {
       userInfo: {},
       email: '',
       password: '',
+      notification: '',
     };
   }
 
@@ -30,25 +32,37 @@ class Login extends Component {
         password: password,
       }),
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          throw new Error('Server Error!');
+        }
+      })
       .then((data) => {
-        console.log(data);
+        if (data.message) {
+          this.setState({ notification: data.message });
+          return;
+        }
         this.setState({ userInfo: data.customer });
         this.props.onLoginSubmit(data.customer.name, data.token);
         this.props.history.push('/customers');
       })
       .catch((err) => {
         console.log(err);
-        // this.setState({ error: err})
+        this.setState({ error: err.message });
       });
   };
 
   render() {
-    const { name, password } = this.state;
+    const { name, password, notification } = this.state;
     return (
       <div className="container login-container">
         <FormGroup>
-          <Label for="email">Email</Label>
+          {notification && <Alert>{notification}</Alert>}
+          <Label for="email" hidden>
+            Email
+          </Label>
           <Input
             onChange={this.onChangeEmail}
             type="email"
@@ -58,7 +72,9 @@ class Login extends Component {
           />
         </FormGroup>{' '}
         <FormGroup>
-          <Label for="password">Password</Label>
+          <Label for="password" hidden>
+            Password
+          </Label>
           <Input
             onChange={this.onChangePassword}
             type="password"

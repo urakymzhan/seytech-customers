@@ -4,21 +4,29 @@ import { withRouter } from 'react-router';
 
 class SingleCustomer extends Component {
   constructor(props) {
-    super();
+    super(props);
 
-    const { id, action } = props.match.params;
-    const customerProp = props.customers.find((item) => item.id === Number(id));
-    const customer = JSON.parse(JSON.stringify(customerProp));
-    const originalCustomer = JSON.parse(JSON.stringify(customer));
     this.state = {
-      editMode: action ? true : false,
-      customer,
-      originalCustomer,
+      editMode: props.match.params.action ? true : false,
+      customer: {},
+      originalCustomer: {},
     };
   }
 
+  componentDidMount() {
+    console.log('props', this.props.customers);
+    const { id } = this.props.match.params;
+    const singlePropCustomer = this.props.customers.find(
+      (item) => item._id === id
+    );
+
+    this.setState({
+      customer: singlePropCustomer,
+      originalCustomer: singlePropCustomer,
+    });
+  }
   delete = () => {
-    this.props.delete(this.state.customer.id);
+    this.props.delete(this.state.customer._id);
     this.props.history.push('/customers');
   };
 
@@ -37,6 +45,10 @@ class SingleCustomer extends Component {
     this.setState({ editMode: false, originalCustomer: { ...customer } });
   };
   customerChange = (key, value) => {
+    // if (key === 'courses') {
+    //   const courses = value.split(',');
+    //   customer[id] = courses;
+    // }
     const customer = { ...this.state.customer };
     customer[key] = value;
     this.setState({ customer });
@@ -44,6 +56,7 @@ class SingleCustomer extends Component {
 
   render() {
     const { editMode, customer } = this.state;
+    console.log('customer', customer);
     const editContent = !editMode && (
       <Button onClick={this.onEdit} color="primary">
         Edit {customer.name}
@@ -137,7 +150,7 @@ class SingleCustomer extends Component {
       <div>
         <div className="row">
           <div className="title">Id:</div>
-          <div className="desc">{customer.id}</div>
+          <div className="desc">{customer._id}</div>
         </div>
         <div className="row">
           <div className="title">Avatar:</div>

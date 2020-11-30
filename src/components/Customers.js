@@ -5,8 +5,7 @@ import { Button } from 'reactstrap';
 import { DebounceInput } from 'react-debounce-input';
 import { Link } from 'react-router-dom';
 import AddCustomer from './AddCustomer';
-// import { arrowUp, arrowDown } from '../assets/images';
-import { customersUrl } from './api';
+import Alert from 'reactstrap/lib/Alert';
 
 const options = [
   { value: 'name', label: 'Name' },
@@ -15,40 +14,18 @@ const options = [
 ];
 
 class Customers extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       value: '',
       searchBy: 'name',
       sortBy: null,
       asc: false,
-      customers: [],
-      isLoading: false,
     };
   }
 
-  componentDidMount() {
-    this.setState({ isLoading: true });
-    fetch(customersUrl, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        this.setState({ customers: data.customers, isLoading: false });
-      })
-      .catch((err) => {
-        console.log(err);
-        this.setState({ error: err.message });
-      });
-  }
   onChange = (e) => {
     this.setState({ value: e.target.value });
-    console.log('Search', e.target.value);
   };
 
   onSelect = (item) => {
@@ -61,64 +38,9 @@ class Customers extends Component {
   };
 
   render() {
-    const { customers, isLoading } = this.state;
+    const { customers, notification } = this.props;
     const { searchBy, sortBy } = this.state;
-    let content;
-    if (isLoading) {
-      content = <div>Loading...</div>;
-    }
-    if (customers) {
-      content = (
-        <tbody>
-          {customers.map((customer, ind) => {
-            const {
-              _id,
-              name,
-              // lastName,
-              avatar,
-              email,
-              state,
-              phone,
-              role,
-              github,
-              courses,
-              payment,
-            } = customer;
-            const url = `/customer/${_id}`;
-            const urlEdit = `/customer/${_id}/edit`;
-            return (
-              <tr key={_id}>
-                <th scope="row">{ind + 1}</th>
-                <td>
-                  <img src={avatar} alt="customers avatars" />
-                </td>
-                <td>
-                  {' '}
-                  <Link to={url}>{name}</Link>{' '}
-                </td>
-                <td>{state}</td>
-                <td>{email}</td>
-                <td>{phone}</td>
-                <td>{payment}</td>
-                <td>{courses}</td>
-                <td>{role}</td>
-                <td>{github} </td>
-                <td style={{ width: '250px' }}>
-                  <Button className="mr-3" color="primary">
-                    <Link className="text-white" to={urlEdit}>
-                      Edit
-                    </Link>
-                  </Button>
-                  <Button onClick={() => this.props.delete(_id)} color="danger">
-                    Delete
-                  </Button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      );
-    }
+
     return (
       <div className="customers-wrapper">
         <div style={{ display: 'flex' }}>
@@ -153,6 +75,7 @@ class Customers extends Component {
           </em>
         </p>
         <AddCustomer addCustomer={this.props.addCustomer} />
+        {notification && <Alert color="danger">{notification}</Alert>}
 
         <Table
           striped
@@ -179,10 +102,65 @@ class Customers extends Component {
               <th onClick={() => this.sortBy('github')}>
                 Github {sortBy === 'github'}
               </th>
-              <th>Actions</th>
+              <th>Edit</th>
+              <th>Delete</th>
             </tr>
           </thead>
-          {content}
+          <tbody>
+            {customers.map((customer, ind) => {
+              const {
+                _id,
+                name,
+                // lastName,
+                avatar,
+                email,
+                state,
+                phone,
+                role,
+                github,
+                courses,
+                payment,
+              } = customer;
+              const url = `/customer/${_id}`;
+              const urlEdit = `/customer/${_id}/edit`;
+              return (
+                <tr key={_id}>
+                  <th scope="row">{ind + 1}</th>
+                  <td>
+                    <img src={avatar} alt="customers avatars" />
+                  </td>
+                  <td>
+                    {' '}
+                    <Link to={{ pathname: url, state: { customer: customer } }}>
+                      {name}
+                    </Link>{' '}
+                  </td>
+                  <td>{state}</td>
+                  <td>{email}</td>
+                  <td>{phone}</td>
+                  <td>{payment}</td>
+                  <td>{courses}</td>
+                  <td>{role}</td>
+                  <td>{github} </td>
+                  <td>
+                    <Button color="primary">
+                      <Link className="text-white" to={urlEdit}>
+                        Edit
+                      </Link>
+                    </Button>
+                  </td>
+                  <td>
+                    <Button
+                      onClick={() => this.props.delete(_id)}
+                      color="danger"
+                    >
+                      Delete
+                    </Button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
         </Table>
       </div>
     );

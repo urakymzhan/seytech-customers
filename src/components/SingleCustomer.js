@@ -195,3 +195,22 @@ class SingleCustomer extends Component {
 }
 
 export default withRouter(SingleCustomer);
+
+/*
+const data = [
+  {countryName: "USA", currency:"dollar", products:[
+    {name: "apple", active:true, subProducts:[
+      {name: "iPhone", price: 40, sold:4},
+      {name: "iPad", price: 530, sold:4},
+      {name: "watch", price: 530},
+    ]}
+  ]},
+  {countryName: "Russia", currency:"rubl", products:[
+    {name: "apple", active:true, subProducts:[
+      {name: "iPhone", price: 40, sold:4},
+      {name: "iPad", price: 530, sold:4},
+      {name: "watch", price: 530},
+    ]}
+  ]}
+]
+*/

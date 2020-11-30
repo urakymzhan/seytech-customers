@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import {
+  BrowserRouter as Router,
   Switch,
   Route,
   Link,
   Redirect,
-  withRouter,
-  BrowserRouter as Router,
 } from 'react-router-dom';
-import { Button, Container } from 'reactstrap';
-import NotFound from './components/NotFound';
+import { Container } from 'reactstrap';
+
 import Customers from './components/Customers';
 import SingleCustomer from './components/SingleCustomer';
 import Login from './components/Login';
@@ -16,109 +15,34 @@ import './App.css';
 import Home from './components/Home';
 import About from './components/About';
 import Contact from './components/Contact';
-import Cookies from 'js-cookie';
-
-const customers = [
-  {
-    id: 1,
-    name: 'Seytechdata',
-    lastName: 'Co',
-    avatar: 'https://www.seytech.co/images/logo.png',
-    email: 'support@seytech.co',
-    state: 'WA',
-    phone: 1234567703,
-    role: 'student',
-    github: 'githubtes',
-    courses: ['js, react, algo'],
-    payment: 12000,
-  },
-  {
-    id: 2,
-    name: 'Eliza',
-    lastName: 'Co',
-    avatar: 'https://avatars1.githubusercontent.com/u/68719361?s=100&v=4',
-    email: 'support@seytech.co',
-    state: 'WA',
-    phone: 1234567703,
-    role: 'student',
-    github: 'ewrg',
-    courses: ['js, react, algo'],
-    payment: 12000,
-  },
-  {
-    id: 3,
-    name: 'Adilet',
-    lastName: 'Co',
-    avatar: 'https://avatars0.githubusercontent.com/u/55602501?s=100&v=4',
-    email: 'support@seytech.co',
-    state: 'WA',
-    phone: 1234567703,
-    role: 'instructor',
-    github: 'asdsf',
-    courses: ['js, react, algo'],
-    payment: 12000,
-  },
-  {
-    id: 4,
-    name: 'Max',
-    lastName: 'Co',
-    avatar: 'https://avatars0.githubusercontent.com/u/40704457?s=100&v=4',
-    email: 'support@seytech.co',
-    state: 'WA',
-    phone: 1234567703,
-    role: 'student',
-    github: 'lkdfg',
-    courses: ['js, react, algo'],
-    payment: 12000,
-  },
-  {
-    id: 5,
-    name: 'Ulan',
-    lastName: 'Co',
-    avatar: 'https://avatars1.githubusercontent.com/u/16879917?s=100&v=4',
-    email: 'support@seytech.co',
-    state: 'WA',
-    phone: 1234567703,
-    role: 'admin',
-    github: 'efgdd',
-    courses: ['js, react, algo'],
-    payment: 12000,
-  },
-];
-// const mainUrl =
-//   'https://seytech-customers-backend.herokuapp.com/api/v1/customers';
-// const createUrl =
-//   'https://seytech-customers-backend.herokuapp.com/api/v1/create';
-
-const getAccessToken = () => Cookies.get('token');
-// const getRefreshToken = () => Cookies.get('refresh_token')
-const isAuthenticated = () => !!getAccessToken();
+import NoMatch from './components/NoMatch';
+import { isAuthenticated, removeToken } from './auth';
+// import Cookies from 'js-cookie';
 
 class App extends Component {
   constructor() {
     super();
     this.state = {
-      customers: [],
-      userInfo: {},
       isLoggedIn: false,
+      customerName: '',
     };
   }
 
-  onLoginSubmit = (customer) => {
-    localStorage.setItem('userName', customer.name);
-    this.setState({ isLoggedIn: true, userInfo: customer });
+  delete = (id) => {
+    //filter
+    // const customers = this.state.customers.filter((item) => item.id !== id);
+    // this.setState({ customers });
   };
 
-  delete = (id) => {
-    const customers = this.state.customers.filter((item) => item.id !== id);
-    this.setState({ customers });
-  };
+  setUser = (userInfo) => this.setState({ userInfo, isLoggedIn: true });
 
   logOut = () => {
-    Cookies.remove('token');
-    localStorage.removeItem('userName');
-    // simply needed to rerender
-    this.setState({ isLoggedIn: false, userInfo: {} });
+    // in production
+    // Cookies.remove('token');
+    // simply rerender
+    this.setState({ isLoggedIn: false });
+    // in development
+    removeToken();
   };
 
   addCustomer = (customer) => {
@@ -126,34 +50,44 @@ class App extends Component {
     customer.id = customers.length + 1;
     customers.unshift(customer);
     this.setState({ customers });
+    console.log(this.state.customers);
   };
 
+  onLoginSubmit = (customerName, token) => {
+    // only in development
+    localStorage.setItem('token', token);
+    localStorage.setItem('customerName', customerName);
+    // simply rerender
+    this.setState({ isLoggedIn: true, customerName: customerName });
+  };
   render() {
-    console.log('userInfo', this.state.userInfo);
+    const { customerName } = this.state;
     return (
       <Container fluid="xl">
         <Router>
           <ul className="menu">
             <li>
-              <Link to="/">Home</Link>
+              {' '}
+              <Link to="/">Home</Link>{' '}
             </li>
             <li>
-              <Link to="/about">About</Link>
+              {' '}
+              <Link to="/about">About</Link>{' '}
             </li>
             <li>
-              <Link to="/customers">Customers</Link>
+              {' '}
+              <Link to="/contact">Contact</Link>{' '}
             </li>
             <li>
-              <Link to="/contact">Contact</Link>
+              {' '}
+              <Link to="/customers">Customers</Link>{' '}
             </li>
             {isAuthenticated() && (
-              <React.Fragment>
-                {/* temporary solution */}
-                {/* <li>Welcome {localStorage.getItem('userName')}</li> */}
+              <li>
                 <Link to="/login" onClick={this.logOut}>
-                  <li>Logout</li>{' '}
+                  Logout
                 </Link>
-              </React.Fragment>
+              </li>
             )}
           </ul>
 
@@ -173,12 +107,13 @@ class App extends Component {
                   <Customers
                     addCustomer={this.addCustomer}
                     delete={this.delete}
+                    customerName={customerName}
                   />
                 ) : (
                   <Redirect to="/login" />
                 )}
               </Route>
-              <Route exact path="/customer/:id">
+              <Route path="/customer/:id">
                 <SingleCustomer
                   delete={this.delete}
                   customers={this.state.customers}
@@ -191,13 +126,18 @@ class App extends Component {
                 />
               </Route>
               <Route exact path="/login">
-                <Login
-                  setUser={this.setUser}
-                  onLoginSubmit={this.onLoginSubmit}
-                />
+                {isAuthenticated() ? (
+                  // redirect to diff page?
+                  <div>Already logged in</div>
+                ) : (
+                  <Login
+                    setUser={this.setUser}
+                    onLoginSubmit={this.onLoginSubmit}
+                  />
+                )}
               </Route>
               <Route path="*">
-                <NotFound />
+                <NoMatch />
               </Route>
             </Switch>
           </div>

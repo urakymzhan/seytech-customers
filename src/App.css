@@ -2,50 +2,40 @@
   box-sizing: border-box;
 }
 
-/* customers */
-.customers {
-  margin: 5px 0;
-  padding: 10px;
-}
+/* .app {
+  width: 200px;
+  margin: 0 auto;
+} */
+
+/* Customers */
 .customers img {
   width: 50px;
-  height: 60px;
+  border-radius: 50px;
 }
-
-.user-search-container {
-  /* border: 1px solid; */
-  display: flex;
-  text-align: center;
-}
-.user-info-wrapper {
+.search-wrapper {
+  /* border-bottom: solid 1px #aaa;
+  padding: 5px;
+  padding-left: 20px; */
   /* border: 1px solid red; */
   flex: 1;
 }
-/* search */
-.search-wrapper {
-  /* padding: 5px; */
-  /* border: 1px solid; */
-  flex: 1;
-}
-.search-input {
-  /* flex: 1; */
-  /* margin-right: 50px; */
-}
+.search-input,
 .search-select {
-  /* flex: 2; */
+  margin-bottom: 10px;
 }
 
-/* menu */
+/* MENU */
 .menu {
-  padding: 10px 5px;
   list-style: none;
   display: flex;
   justify-content: space-between;
+  padding: 10px 0;
   border-bottom: 1px solid gray;
 }
 
-/* container */
-.container {
-  /* border: 1px solid blue; */
-  /* min-height: 100vh; */
+/* .login-container {
+  border: 1px solid red;
 }
+.customers-wrapper {
+  border: 1px solid red;
+} */

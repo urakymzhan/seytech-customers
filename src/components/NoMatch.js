@@ -7,7 +7,7 @@ export default function NoMatch() {
   return (
     <div>
       <h3>
-        No Page found for <code>{location.pathname}</code> path
+        No page found for <code>{location.pathname}</code> url. Please use menu
       </h3>
     </div>
   );

@@ -1,17 +1,12 @@
 import React, { Component } from 'react';
 import { Button, FormGroup, Label, Input } from 'reactstrap';
 import { withRouter } from 'react-router-dom';
-const loginUrl = '/api/v1/login';
-
+import { loginUrl } from './api';
 class Login extends Component {
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
     this.state = {
-      // userInfo: {
-      //   username: 'seytech',
-      //   password: 'seytech',
-      //   name: 'Marat Gaipov',
-      // },
+      userInfo: {},
       email: '',
       password: '',
     };
@@ -23,33 +18,42 @@ class Login extends Component {
 
   onSubmit = () => {
     const { email, password } = this.state;
+
     fetch(loginUrl, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({
+        email: email,
+        password: password,
+      }),
     })
       .then((res) => res.json())
       .then((data) => {
-        this.props.onLoginSubmit(data.customer);
+        console.log(data);
+        this.setState({ userInfo: data.customer });
+        this.props.onLoginSubmit(data.customer.name, data.token);
         this.props.history.push('/customers');
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+        // this.setState({ error: err})
+      });
   };
 
   render() {
-    const { email, password } = this.state;
+    const { name, password } = this.state;
     return (
-      <div className="login-container">
+      <div className="container login-container">
         <FormGroup>
-          <Label for="username">Email</Label>
+          <Label for="email">Email</Label>
           <Input
             onChange={this.onChangeEmail}
             type="email"
             name="email"
-            value={email}
+            value={name}
             placeholder="Email"
           />
         </FormGroup>{' '}

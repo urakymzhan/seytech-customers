@@ -30,21 +30,3 @@ export const arrowDown = (
     />
   </svg>
 );
-
-// const filteredC = customers.filter((item) => {
-//   return item[searchBy].toLowerCase().includes(value.toLowerCase());
-// });
-// let arrowIcon;
-// if (sortBy !== null) {
-//   // sort
-//   filteredC.sort((a, b) => {
-//     if (a.name > b.name) {
-//       return asc ? 1 : -1;
-//     } else if (b.name > a.name) {
-//       return asc ? -1 : 1;
-//     }
-//     return 1;
-//   });
-//   // sort icon
-//   arrowIcon = asc ? arrowUp : arrowDown;
-// }

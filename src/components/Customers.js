@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { Table } from 'reactstrap';
+import { Table, Alert } from 'reactstrap';
 import Select from 'react-select';
 import { Button } from 'reactstrap';
 import { DebounceInput } from 'react-debounce-input';
 import { Link } from 'react-router-dom';
 import AddCustomer from './AddCustomer';
-import Alert from 'reactstrap/lib/Alert';
+// import { arrowUp, arrowDown } from '../assets/images';
 
 const options = [
   { value: 'name', label: 'Name' },
@@ -14,8 +14,8 @@ const options = [
 ];
 
 class Customers extends Component {
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
     this.state = {
       value: '',
       searchBy: 'name',
@@ -57,7 +57,7 @@ class Customers extends Component {
                   border: '1px solid lightgray',
                   borderRadius: '5px',
                 }}
-                placeholder="Search..."
+                placeholder="Search customers ..."
               />
             </div>
             <div className="search-select">
@@ -75,8 +75,7 @@ class Customers extends Component {
           </em>
         </p>
         <AddCustomer addCustomer={this.props.addCustomer} />
-        {notification && <Alert color="danger">{notification}</Alert>}
-
+        {notification && <Alert color="success">{notification}</Alert>}
         <Table
           striped
           bordered
@@ -131,9 +130,7 @@ class Customers extends Component {
                   </td>
                   <td>
                     {' '}
-                    <Link to={{ pathname: url, state: { customer: customer } }}>
-                      {name}
-                    </Link>{' '}
+                    <Link to={url}>{name}</Link>{' '}
                   </td>
                   <td>{state}</td>
                   <td>{email}</td>

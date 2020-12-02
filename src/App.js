@@ -7,7 +7,7 @@ import {
   Redirect,
 } from 'react-router-dom';
 import { Container } from 'reactstrap';
-import Alert from 'reactstrap/lib/Alert';
+
 import Customers from './components/Customers';
 import SingleCustomer from './components/SingleCustomer';
 import Login from './components/Login';
@@ -18,21 +18,22 @@ import Contact from './components/Contact';
 import NoMatch from './components/NoMatch';
 import { isAuthenticated, removeToken } from './auth';
 // import Cookies from 'js-cookie';
-import { customersUrl, mainUrl, createurl } from './components/api';
+import { customersUrl, mainUrl } from './components/api';
+import { Alert } from 'reactstrap';
 
 class App extends Component {
   constructor() {
     super();
     this.state = {
       customerName: '',
-      isLoading: false,
       customers: [],
+      isLoading: false,
       error: '',
       notification: '',
     };
   }
 
-  getCustomers = () => {
+  componentDidMount() {
     this.setState({ isLoading: true });
     fetch(customersUrl, {
       method: 'GET',
@@ -45,25 +46,19 @@ class App extends Component {
         if (res.ok) {
           return res.json();
         } else {
-          throw new Error('Server error! Please try again later.');
+          throw new Error('Server Error!');
         }
       })
       .then((data) => {
-        this.setState({
-          customers: data.customers,
-          isLoading: false,
-        });
-        setTimeout(() => {
-          this.setState({ error: '' });
-        }, 2500);
+        // console.log(data);
+        this.setState({ customers: data.customers, isLoading: false });
       })
       .catch((err) => {
+        console.log(err);
         this.setState({ error: err.message });
       });
-  };
-  componentDidMount() {
-    this.getCustomers();
   }
+
   delete = (customerId) => {
     fetch(`${mainUrl}/customer/${customerId}`, {
       method: 'delete',
@@ -76,35 +71,42 @@ class App extends Component {
         if (res.ok) {
           return res.json();
         } else {
-          throw new Error('Server error! Please try again later.');
+          throw new Error('Server Error!');
         }
       })
       .then((data) => {
-        const updatedCustomers = this.state.customers.filter(
-          (customer) => customer._id !== customerId
-        );
-        this.setState({
-          notification: data.message,
-          customers: updatedCustomers,
-        });
+        if (data.message) {
+          const updatedCustomers = this.state.customers.filter(
+            (customer) => customer._id !== customerId
+          );
+          this.setState({
+            notification: data.message,
+            customers: updatedCustomers,
+          });
+        }
         setTimeout(() => {
           this.setState({ notification: '' });
         }, 2500);
       })
-      .catch((err) => this.setState({ notification: err.message }));
+      .catch((err) => {
+        this.setState({ notification: err.message });
+        setTimeout(() => {
+          this.setState({ notification: '' });
+        }, 2500);
+      });
   };
 
   logOut = () => {
     // in production
     // Cookies.remove('token');
-    // simply rerender
-    this.setState({ customerName: '' });
     // in development
+    this.setState({ customerName: '' });
     removeToken();
   };
 
   addCustomer = (customer) => {
-    fetch(createurl, {
+    console.log(customer);
+    fetch(`${mainUrl}/create`, {
       method: 'post',
       headers: {
         Accept: 'application/json',
@@ -116,19 +118,18 @@ class App extends Component {
         if (res.ok) {
           return res.json();
         } else {
-          throw new Error('Server error! Please try again later.');
+          throw new Error('Server Error!');
         }
       })
       .then((data) => {
-        if (!data.customer) {
-          throw new Error(data.message);
+        if (data.customer) {
+          const updatedCustomers = [data.customer, ...this.state.customers];
+
+          this.setState({
+            notification: data.message,
+            customers: updatedCustomers,
+          });
         }
-        const updatedCustomers = [...this.state.customers, data.customer];
-        console.log('updatedCustomers', updatedCustomers);
-        this.setState({
-          notification: data.message,
-          customers: updatedCustomers,
-        });
         setTimeout(() => {
           this.setState({ notification: '' });
         }, 2500);
@@ -147,51 +148,72 @@ class App extends Component {
     localStorage.setItem('customerName', customerName);
     // simply rerender
     this.setState({ customerName: customerName });
-    this.getCustomers();
   };
   render() {
     const {
       customerName,
-      isLoading,
       customers,
+      isLoading,
       error,
       notification,
     } = this.state;
     console.log('customers', customers);
 
-    let customersContent;
+    let customerContent;
+    let singleCustomerContent;
+
     if (isLoading) {
-      customersContent = <div>Loading...</div>;
+      customerContent = <div>Loading...</div>;
+      singleCustomerContent = <div>Loading...</div>; //  todo
     }
+
     if (error) {
-      customersContent = (
-        <Alert color="danger" fade={true}>
-          {error}
+      customerContent = (
+        <Alert color="danger">
+          <p>{error}</p>
+        </Alert>
+      );
+      singleCustomerContent = ( // todo
+        <Alert color="danger">
+          <p>{error}</p>
         </Alert>
       );
     }
+
     if (customers.length === 0) {
-      customersContent = isAuthenticated() ? (
-        <Customers customers={[]} addCustomer={this.addCustomer} />
+      customerContent = isAuthenticated() ? (
+        <Customers
+          addCustomer={this.addCustomer}
+          customerName={customerName}
+          customers={[]}
+        />
       ) : (
         <Redirect to="/login" />
       );
+      singleCustomerContent = (
+        <SingleCustomer
+          customers={
+            [] // todo
+          }
+        />
+      );
     }
     if (customers.length > 0) {
-      customersContent = isAuthenticated() ? (
+      customerContent = isAuthenticated() ? (
         <Customers
           addCustomer={this.addCustomer}
           delete={this.delete}
           customerName={customerName}
-          getCustomers={this.getCustomers}
           customers={customers}
           notification={notification}
         />
       ) : (
         <Redirect to="/login" />
       );
+      singleCustomerContent = ( // todo
+        <SingleCustomer delete={this.delete} customers={customers} />
+      );
     }
-
     return (
       <Container fluid="xl">
         <Router>
@@ -221,38 +243,37 @@ class App extends Component {
             )}
           </ul>
 
-          <Switch>
-            <Route exact path="/">
-              <Home />
-            </Route>
-            <Route exact path="/about">
-              <About />
-            </Route>
-            <Route exact path="/contact">
-              <Contact />
-            </Route>
-
-            <Route exact path="/customers">
-              {customersContent}
-            </Route>
-            <Route path="/customer/:id">
-              <SingleCustomer delete={this.delete} customers={customers} />
-            </Route>
-            <Route path="/customer/:id/:action">
-              <SingleCustomer delete={this.delete} customers={customers} />
-            </Route>
-            <Route exact path="/login">
-              {isAuthenticated() ? (
-                <Redirect to="/customers" />
-              ) : (
-                // <div>Already logged in</div>
-                <Login onLoginSubmit={this.onLoginSubmit} />
-              )}
-            </Route>
-            <Route path="*">
-              <NoMatch />
-            </Route>
-          </Switch>
+          <div className="pages">
+            <Switch>
+              <Route exact path="/">
+                <Home />
+              </Route>
+              <Route exact path="/about">
+                <About />
+              </Route>
+              <Route exact path="/contact">
+                <Contact />
+              </Route>
+              <Route exact path="/customers">
+                {customerContent}
+              </Route>
+              <Route path="/customer/:id">{singleCustomerContent}</Route>
+              <Route path="/customer/:id/:action">
+                {singleCustomerContent}
+              </Route>
+              <Route exact path="/login">
+                {isAuthenticated() ? (
+                  // <div>Already logged in</div>
+                  <Redirect to="/customers" />
+                ) : (
+                  <Login onLoginSubmit={this.onLoginSubmit} />
+                )}
+              </Route>
+              <Route path="*">
+                <NoMatch />
+              </Route>
+            </Switch>
+          </div>
         </Router>
       </Container>
     );

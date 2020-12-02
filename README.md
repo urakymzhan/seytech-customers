@@ -86,3 +86,9 @@ Seytech Customers CRUD application.
 
     * Lots of Code Cleanup
     * Remove token from localstorage and instead use cookies
+
+## Day 5 - 11/30/2020
+
+    * Lots of Code Cleanup
+    * CRUD
+    * Client form validation

@@ -1,30 +1,48 @@
 import React, { Component } from 'react';
-import { Button } from 'reactstrap';
+import { Button, Container } from 'reactstrap';
 import { withRouter } from 'react-router';
-
+import { mainUrl } from './api';
 class SingleCustomer extends Component {
   constructor(props) {
     super(props);
-
     this.state = {
       editMode: props.match.params.action ? true : false,
       customer: {},
       originalCustomer: {},
+      error: '',
+      isLoading: false,
     };
   }
-
   componentDidMount() {
-    console.log('props', this.props.customers);
     const { id } = this.props.match.params;
-    const singlePropCustomer = this.props.customers.find(
-      (item) => item._id === id
-    );
-
-    this.setState({
-      customer: singlePropCustomer,
-      originalCustomer: singlePropCustomer,
-    });
+    this.setState({ isLoading: true });
+    fetch(`${mainUrl}/customer/${id}`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          throw new Error('Server Error!');
+        }
+      })
+      .then((customer) => {
+        this.setState({
+          customer: customer,
+          originalCustomer: customer,
+          isLoading: false,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        this.setState({ error: err.message });
+      });
   }
+
   delete = () => {
     this.props.delete(this.state.customer._id);
     this.props.history.push('/customers');
@@ -45,21 +63,153 @@ class SingleCustomer extends Component {
     this.setState({ editMode: false, originalCustomer: { ...customer } });
   };
   customerChange = (key, value) => {
-    // if (key === 'courses') {
-    //   const courses = value.split(',');
-    //   customer[id] = courses;
-    // }
     const customer = { ...this.state.customer };
     customer[key] = value;
     this.setState({ customer });
   };
 
   render() {
-    const { editMode, customer } = this.state;
+    const { editMode, customer, isLoading, error } = this.state;
+
     console.log('customer', customer);
+
+    let avatarContent;
+    let nameContent;
+    let lastContent;
+    let emailContent;
+    let stateContent;
+    let phoneContent;
+    let roleContent;
+    let githubContent;
+    let coursesContent;
+    let paymentContent;
+
+    if (isLoading) {
+      avatarContent = <div>Loading...</div>;
+      nameContent = <div>Loading...</div>;
+      lastContent = <div>Loading...</div>;
+      emailContent = <div>Loading...</div>;
+      stateContent = <div>Loading...</div>;
+      phoneContent = <div>Loading...</div>;
+      roleContent = <div>Loading...</div>;
+      githubContent = <div>Loading...</div>;
+      coursesContent = <div>Loading...</div>;
+      paymentContent = <div>Loading...</div>;
+    }
+
+    if (error) {
+      avatarContent = <div>{error}</div>;
+      nameContent = <div>{error}</div>;
+      lastContent = <div>{error}</div>;
+      emailContent = <div>{error}</div>;
+      stateContent = <div>{error}</div>;
+      phoneContent = <div>{error}</div>;
+      roleContent = <div>{error}</div>;
+      githubContent = <div>{error}</div>;
+      coursesContent = <div>{error}</div>;
+      paymentContent = <div>{error}</div>;
+    }
+
+    if (customer.name) {
+      avatarContent = editMode ? (
+        <input
+          onChange={(e) => this.customerChange('avatar', e.target.value)}
+          value={customer.avatar}
+        />
+      ) : (
+        (avatarContent = (
+          <>
+            <div className="title">Avatar:</div>
+            <div className="desc">
+              <img
+                className="img"
+                src={customer.avatar}
+                alt="customer avatar"
+                style={{ width: '50px' }}
+              />
+            </div>
+          </>
+        ))
+      );
+      nameContent = editMode ? (
+        <input
+          autoFocus
+          onChange={(e) => this.customerChange('name', e.target.value)}
+          value={customer.name}
+        />
+      ) : (
+        customer.name
+      );
+      lastContent = editMode ? (
+        <input
+          onChange={(e) => this.customerChange('lastName', e.target.value)}
+          value={customer.lastName}
+        />
+      ) : (
+        customer.lastName
+      );
+      emailContent = editMode ? (
+        <input
+          onChange={(e) => this.customerChange('email', e.target.value)}
+          value={customer.email}
+        />
+      ) : (
+        customer.email
+      );
+      stateContent = editMode ? (
+        <input
+          onChange={(e) => this.customerChange('state', e.target.value)}
+          value={customer.state}
+        />
+      ) : (
+        customer.state
+      );
+      phoneContent = editMode ? (
+        <input
+          onChange={(e) => this.customerChange('phone', e.target.value)}
+          value={customer.phone}
+        />
+      ) : (
+        customer.phone
+      );
+      roleContent = editMode ? (
+        <input
+          onChange={(e) => this.customerChange('role', e.target.value)}
+          value={customer.role}
+        />
+      ) : (
+        customer.role
+      );
+      githubContent = editMode ? (
+        <input
+          onChange={(e) => this.customerChange('github', e.target.value)}
+          value={customer.github}
+        />
+      ) : (
+        customer.github
+      );
+      coursesContent = editMode ? (
+        <input
+          onChange={(e) => this.customerChange('courses', e.target.value)}
+          value={customer.courses} // this is array
+        />
+      ) : (
+        customer.courses
+      );
+      paymentContent = editMode ? (
+        <input
+          onChange={(e) => this.customerChange('payment', e.target.value)}
+          value={customer.payment}
+        />
+      ) : (
+        customer.payment
+      );
+    }
+
     const editContent = !editMode && (
       <Button onClick={this.onEdit} color="primary">
-        Edit {customer.name}
+        {/* Edit {customer.name} */}
+        Edit
       </Button>
     );
     const saveContent = editMode && (
@@ -72,91 +222,98 @@ class SingleCustomer extends Component {
         Cancel
       </Button>
     );
-    const nameContent = editMode ? (
-      <input
-        autoFocus
-        onChange={(e) => this.customerChange('name', e.target.value)}
-        value={customer.name}
-      />
-    ) : (
-      customer.name
-    );
-    const lastContent = editMode ? (
-      <input
-        onChange={(e) => this.customerChange('lastName', e.target.value)}
-        value={customer.lastName}
-      />
-    ) : (
-      customer.lastName
-    );
-    const emailContent = editMode ? (
-      <input
-        onChange={(e) => this.customerChange('email', e.target.value)}
-        value={customer.email}
-      />
-    ) : (
-      customer.email
-    );
-    const stateContent = editMode ? (
-      <input
-        onChange={(e) => this.customerChange('state', e.target.value)}
-        value={customer.state}
-      />
-    ) : (
-      customer.state
-    );
-    const phoneContent = editMode ? (
-      <input
-        onChange={(e) => this.customerChange('phone', e.target.value)}
-        value={customer.phone}
-      />
-    ) : (
-      customer.phone
-    );
-    const roleContent = editMode ? (
-      <input
-        onChange={(e) => this.customerChange('role', e.target.value)}
-        value={customer.role}
-      />
-    ) : (
-      customer.role
-    );
-    const githubContent = editMode ? (
-      <input
-        onChange={(e) => this.customerChange('github', e.target.value)}
-        value={customer.github}
-      />
-    ) : (
-      customer.github
-    );
-    const coursesContent = editMode ? (
-      <input
-        onChange={(e) => this.customerChange('courses', e.target.value)}
-        value={customer.courses}
-      />
-    ) : (
-      customer.courses
-    );
-    const paymentContent = editMode ? (
-      <input
-        onChange={(e) => this.customerChange('payment', e.target.value)}
-        value={customer.payment}
-      />
-    ) : (
-      customer.payment
-    );
+
+    // const nameContent = editMode ? (
+    //   <input
+    //     autoFocus
+    //     onChange={(e) => this.customerChange('name', e.target.value)}
+    //     value={customer.name}
+    //   />
+    // ) : (
+    //   customer.name
+    // );
+    // const lastContent = editMode ? (
+    //   <input
+    //     onChange={(e) => this.customerChange('lastName', e.target.value)}
+    //     value={customer.lastName}
+    //   />
+    // ) : (
+    //   customer.lastName
+    // );
+    // const emailContent = editMode ? (
+    //   <input
+    //     onChange={(e) => this.customerChange('email', e.target.value)}
+    //     value={customer.email}
+    //   />
+    // ) : (
+    //   customer.email
+    // );
+    // const stateContent = editMode ? (
+    //   <input
+    //     onChange={(e) => this.customerChange('state', e.target.value)}
+    //     value={customer.state}
+    //   />
+    // ) : (
+    //   customer.state
+    // );
+    // const phoneContent = editMode ? (
+    //   <input
+    //     onChange={(e) => this.customerChange('phone', e.target.value)}
+    //     value={customer.phone}
+    //   />
+    // ) : (
+    //   customer.phone
+    // );
+    // const roleContent = editMode ? (
+    //   <input
+    //     onChange={(e) => this.customerChange('role', e.target.value)}
+    //     value={customer.role}
+    //   />
+    // ) : (
+    //   customer.role
+    // );
+    // const githubContent = editMode ? (
+    //   <input
+    //     onChange={(e) => this.customerChange('github', e.target.value)}
+    //     value={customer.github}
+    //   />
+    // ) : (
+    //   customer.github
+    // );
+    // const coursesContent = editMode ? (
+    //   <input
+    //     onChange={(e) => this.customerChange('courses', e.target.value)}
+    //     value={customer.courses}
+    //   />
+    // ) : (
+    //   customer.courses
+    // );
+    // const paymentContent = editMode ? (
+    //   <input
+    //     onChange={(e) => this.customerChange('payment', e.target.value)}
+    //     value={customer.payment}
+    //   />
+    // ) : (
+    //   customer.payment
+    // );
 
     return (
-      <div>
+      <Container style={{ border: '1px solid' }}>
         <div className="row">
           <div className="title">Id:</div>
           <div className="desc">{customer._id}</div>
         </div>
         <div className="row">
-          <div className="title">Avatar:</div>
+          {/* <div className="title">Avatar:</div>
           <div className="desc">
-            <img className="img" src={customer.avatar} alt="customer avatar" />
-          </div>
+            <img
+              className="img"
+              src={customer.avatar}
+              alt="customer avatar"
+              style={{ width: '50px' }}
+            />
+          </div> */}
+          <div className="desc">{avatarContent}</div>
         </div>
         <div className="row">
           <div className="title">Name:</div>
@@ -198,11 +355,12 @@ class SingleCustomer extends Component {
           {editContent}
           {saveContent}
           {cancelContent}
+
           <Button onClick={this.delete} color="danger">
             Delete {this.state.customer.name}
           </Button>
         </div>
-      </div>
+      </Container>
     );
   }
 }

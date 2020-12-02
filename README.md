@@ -62,3 +62,11 @@ Seytech Customers CRUD application.
     Provide details in the body
     * (PATCH) Update a customer: https://seytech-customers-backend.herokuapp.com/api/v1/customer/:id
     Provide data in body and id in params
+
+#### Order of branches:
+
+    1. master
+    2. login-token-cookie
+    3. crud-validation-fetch
+    4. search-sort
+    5. pagination

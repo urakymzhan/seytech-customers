@@ -5,7 +5,7 @@ import { Button } from 'reactstrap';
 import { DebounceInput } from 'react-debounce-input';
 import { Link } from 'react-router-dom';
 import AddCustomer from './AddCustomer';
-// import { arrowUp, arrowDown } from '../assets/images';
+import { arrowUp, arrowDown } from '../assets/images';
 
 const options = [
   { value: 'name', label: 'Name' },
@@ -17,15 +17,18 @@ class Customers extends Component {
   constructor() {
     super();
     this.state = {
-      value: '',
+      searchValue: '',
       searchBy: 'name',
       sortBy: null,
       asc: false,
     };
   }
 
+  componentDidMount() {
+    this.props.getCustomers();
+  }
   onChange = (e) => {
-    this.setState({ value: e.target.value });
+    this.setState({ searchValue: e.target.value });
   };
 
   onSelect = (item) => {
@@ -37,9 +40,32 @@ class Customers extends Component {
     this.setState({ asc: !asc, sortBy });
   };
 
+  sort = (filteredCustomers, arrowIcon) => {
+    const { sortBy, asc } = this.state;
+
+    if (sortBy !== null) {
+      filteredCustomers.sort((a, b) => {
+        if (a[sortBy] > b[sortBy]) {
+          return asc ? 1 : -1;
+        } else if (b[sortBy] > a[sortBy]) {
+          return asc ? -1 : 1;
+        }
+        return 1;
+      });
+      // sort icon
+      arrowIcon = asc ? arrowUp : arrowDown;
+    }
+  };
   render() {
     const { customers, notification } = this.props;
-    const { searchBy, sortBy } = this.state;
+    const { searchBy, sortBy, searchValue, asc } = this.state;
+    // search
+    const filteredCustomers = customers.filter((item) => {
+      return item[searchBy].toLowerCase().includes(searchValue.toLowerCase());
+    });
+    // sort
+    let arrowIcon;
+    this.sort(filteredCustomers, arrowIcon);
 
     return (
       <div className="customers-wrapper">
@@ -47,7 +73,7 @@ class Customers extends Component {
           <div className="search-wrapper">
             <div className="search-input">
               <DebounceInput
-                minLength={2}
+                minLength={0}
                 onChange={this.onChange}
                 debounceTimeout={300}
                 style={{
@@ -88,29 +114,29 @@ class Customers extends Component {
               <th>#</th>
               <th>Avatar</th>
               <th onClick={() => this.sortBy('name')}>
-                Name {sortBy === 'name'}
+                Name {sortBy === 'name' && arrowIcon}
               </th>
+              <th>Last Name</th>
               <th>State</th>
               <th>Email</th>
               <th>Phone</th>
               <th>Payment</th>
               <th>Courses</th>
-              <th onClick={() => this.sortBy('role')}>
-                Role {sortBy === 'role'}
-              </th>
-              <th onClick={() => this.sortBy('github')}>
-                Github {sortBy === 'github'}
+              <th>Role</th>
+              <th>Github</th>
+              <th onClick={() => this.sortBy('createdAt')}>
+                CreatedAt {sortBy === 'createdAt' && arrowIcon}
               </th>
               <th>Edit</th>
               <th>Delete</th>
             </tr>
           </thead>
           <tbody>
-            {customers.map((customer, ind) => {
+            {filteredCustomers.map((customer, ind) => {
               const {
                 _id,
                 name,
-                // lastName,
+                lastName,
                 avatar,
                 email,
                 state,
@@ -118,7 +144,8 @@ class Customers extends Component {
                 role,
                 github,
                 courses,
-                payment,
+                payments,
+                createdAt,
               } = customer;
               const url = `/customer/${_id}`;
               const urlEdit = `/customer/${_id}/edit`;
@@ -132,13 +159,21 @@ class Customers extends Component {
                     {' '}
                     <Link to={url}>{name}</Link>{' '}
                   </td>
-                  <td>{state}</td>
+                  <td>{lastName}</td>
+                  {state ? <td>{state}</td> : <td>N/A</td>}
                   <td>{email}</td>
-                  <td>{phone}</td>
-                  <td>{payment}</td>
-                  <td>{courses}</td>
-                  <td>{role}</td>
-                  <td>{github} </td>
+                  {phone ? <td>{phone}</td> : <td>N/A</td>}
+
+                  {payments ? <td>{payments}</td> : <td>N/A</td>}
+
+                  {courses ? <td>{courses}</td> : <td>N/A</td>}
+
+                  {/* todo */}
+                  {role ? <td>{role}</td> : <td>Not Assigned</td>}
+
+                  {github ? <td>{github}</td> : <td>N/A</td>}
+
+                  {createdAt}
                   <td>
                     <Button color="primary">
                       <Link className="text-white" to={urlEdit}>
@@ -147,12 +182,24 @@ class Customers extends Component {
                     </Button>
                   </td>
                   <td>
-                    <Button
-                      onClick={() => this.props.delete(_id)}
-                      color="danger"
-                    >
-                      Delete
-                    </Button>
+                    {localStorage.getItem('customerId') === _id ? (
+                      <Button
+                        color="primary"
+                        onClick={() => this.props.delete(_id)}
+                        color="danger"
+                        disabled
+                      >
+                        Delete
+                      </Button>
+                    ) : (
+                      <Button
+                        color="primary"
+                        onClick={() => this.props.delete(_id)}
+                        color="danger"
+                      >
+                        Delete
+                      </Button>
+                    )}
                   </td>
                 </tr>
               );
@@ -165,21 +212,3 @@ class Customers extends Component {
 }
 
 export default Customers;
-
-// const filteredC = customers.filter((item) => {
-//   return item[searchBy].toLowerCase().includes(value.toLowerCase());
-// });
-// let arrowIcon;
-// if (sortBy !== null) {
-//   // sort
-//   filteredC.sort((a, b) => {
-//     if (a.name > b.name) {
-//       return asc ? 1 : -1;
-//     } else if (b.name > a.name) {
-//       return asc ? -1 : 1;
-//     }
-//     return 1;
-//   });
-//   // sort icon
-//   arrowIcon = asc ? arrowUp : arrowDown;
-// }

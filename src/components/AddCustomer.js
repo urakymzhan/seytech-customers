@@ -19,11 +19,11 @@ const emptyCustomer = {
   email: '',
   password: '',
   state: '',
-  phone: 'Phone. ex: 312 434 4343',
+  phone: '',
   role: 'student',
   github: '',
   courses: [],
-  payments: 12000,
+  payments: 0,
   repl: '',
 };
 
@@ -50,7 +50,8 @@ class AddCustomer extends Component {
     this.setState({ customer });
   };
 
-  add = () => {
+  add = (e) => {
+    e.preventDefault();
     const { name, lastName, email, password } = this.state.customer;
     if (name === '' || lastName === '' || email === '' || password === '') {
       this.setState({ isValid: true, modal: true });
@@ -189,16 +190,14 @@ class AddCustomer extends Component {
                 </Col>
               </FormGroup>
               <FormGroup row>
-                {/* <Label for="phone" sm={2}>
-                  Phone
-                </Label> */}
                 <Col sm={10}>
                   <Input
                     onChange={this.onChange}
                     value={phone}
-                    type="tel"
+                    type="text"
                     name="phone"
                     id="phone"
+                    placeholder="123 456 6789"
                   />
                 </Col>
               </FormGroup>

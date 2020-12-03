@@ -39,3 +39,34 @@
 .customers-wrapper {
   border: 1px solid red;
 } */
+.customers-wrapper table {
+  font-size: 12px;
+}
+.customers-wrapper table .btn {
+  font-size: 12px;
+  padding: 2px 4px;
+}
+
+/* single Customer page */
+.single-customer-wrapper {
+  border: 1px solid gray;
+}
+.single-customer-wrapper .row {
+  border-bottom: 1px solid gray;
+  display: flex;
+}
+.single-customer-wrapper .title {
+  flex: 1;
+  border-right: 1px solid gray;
+  padding: 5px;
+}
+.single-customer-wrapper .desc {
+  flex: 4;
+  padding: 5px;
+}
+.single-customer-wrapper .desc input {
+  width: 100%;
+}
+.single-customer-wrapper .btn {
+  margin: 10px;
+}

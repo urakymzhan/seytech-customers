@@ -6,7 +6,6 @@ class Login extends Component {
   constructor() {
     super();
     this.state = {
-      userInfo: {},
       email: '',
       password: '',
       notification: '',
@@ -39,8 +38,8 @@ class Login extends Component {
             notification: data.message,
           });
         }
-        this.setState({ userInfo: data.customer });
-        this.props.onLoginSubmit(data.customer.name, data.token);
+        // this.setState({ userInfo: data.customer });
+        this.props.onLoginSubmit(data.customer, data.token);
         this.props.history.push('/customers');
       })
       .catch((err) => {

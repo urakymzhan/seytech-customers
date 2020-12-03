@@ -30,10 +30,10 @@ class App extends Component {
       isLoading: false,
       error: '',
       notification: '',
+      userInfo: {},
     };
   }
-
-  componentDidMount() {
+  getCustomers = () => {
     this.setState({ isLoading: true });
     fetch(customersUrl, {
       method: 'GET',
@@ -57,6 +57,9 @@ class App extends Component {
         console.log(err);
         this.setState({ error: err.message });
       });
+  };
+  componentDidMount() {
+    this.getCustomers();
   }
 
   delete = (customerId) => {
@@ -102,6 +105,8 @@ class App extends Component {
     // in development
     this.setState({ customerName: '' });
     removeToken();
+    localStorage.removeItem('customerName');
+    localStorage.removeItem('customerId');
   };
 
   addCustomer = (customer) => {
@@ -142,12 +147,13 @@ class App extends Component {
       });
   };
 
-  onLoginSubmit = (customerName, token) => {
+  onLoginSubmit = (customer, token) => {
     // only in development
     localStorage.setItem('token', token);
-    localStorage.setItem('customerName', customerName);
+    localStorage.setItem('customerName', customer.name);
+    localStorage.setItem('customerId', customer._id);
     // simply rerender
-    this.setState({ customerName: customerName });
+    this.setState({ customerName: customer.name, userInfo: customer });
   };
   render() {
     const {
@@ -160,20 +166,13 @@ class App extends Component {
     console.log('customers', customers);
 
     let customerContent;
-    let singleCustomerContent;
 
     if (isLoading) {
       customerContent = <div>Loading...</div>;
-      singleCustomerContent = <div>Loading...</div>; //  todo
     }
 
     if (error) {
       customerContent = (
-        <Alert color="danger">
-          <p>{error}</p>
-        </Alert>
-      );
-      singleCustomerContent = ( // todo
         <Alert color="danger">
           <p>{error}</p>
         </Alert>
@@ -183,6 +182,7 @@ class App extends Component {
     if (customers.length === 0) {
       customerContent = isAuthenticated() ? (
         <Customers
+          getCustomers={this.getCustomers}
           addCustomer={this.addCustomer}
           customerName={customerName}
           customers={[]}
@@ -190,17 +190,11 @@ class App extends Component {
       ) : (
         <Redirect to="/login" />
       );
-      singleCustomerContent = (
-        <SingleCustomer
-          customers={
-            [] // todo
-          }
-        />
-      );
     }
     if (customers.length > 0) {
       customerContent = isAuthenticated() ? (
         <Customers
+          getCustomers={this.getCustomers}
           addCustomer={this.addCustomer}
           delete={this.delete}
           customerName={customerName}
@@ -210,9 +204,6 @@ class App extends Component {
       ) : (
         <Redirect to="/login" />
       );
-      singleCustomerContent = ( // todo
-        <SingleCustomer delete={this.delete} customers={customers} />
-      );
     }
     return (
       <Container fluid="xl">
@@ -221,6 +212,10 @@ class App extends Component {
             <li>
               {' '}
               <Link to="/">Home</Link>{' '}
+            </li>
+            <li>
+              {' '}
+              <Link to="/dashboard">Dashboard</Link>{' '}
             </li>
             <li>
               {' '}
@@ -248,6 +243,13 @@ class App extends Component {
               <Route exact path="/">
                 <Home />
               </Route>
+              <Route exact path="/dashboard">
+                {isAuthenticated() ? (
+                  <div>WELCOME TO SEYTECH PORTAL</div>
+                ) : (
+                  <Redirect to="/login" />
+                )}
+              </Route>
               <Route exact path="/about">
                 <About />
               </Route>
@@ -257,14 +259,16 @@ class App extends Component {
               <Route exact path="/customers">
                 {customerContent}
               </Route>
-              <Route path="/customer/:id">{singleCustomerContent}</Route>
+              <Route path="/customer/:id">
+                {' '}
+                <SingleCustomer delete={this.delete} />
+              </Route>
               <Route path="/customer/:id/:action">
-                {singleCustomerContent}
+                <SingleCustomer delete={this.delete} />
               </Route>
               <Route exact path="/login">
                 {isAuthenticated() ? (
-                  // <div>Already logged in</div>
-                  <Redirect to="/customers" />
+                  <Redirect to="/dashboard" />
                 ) : (
                   <Login onLoginSubmit={this.onLoginSubmit} />
                 )}

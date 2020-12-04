@@ -49,10 +49,25 @@ Seytech Customers CRUD application.
         * Learn React Router
         * Clone from github
 
+## Day 2 - 10/29/2020
+
+    * Practice
+        * React Basics
+            * aaa
+
+    * Reactstrap(Bootstrap)
+    * CRUD Apps
+    * Project start/management
+
+    * Homework
+        * aaa
+
 ## Day 3 - 11/23/2020
 
     * Hook Up FE and BE
+
     * Read about cookies, token. How they communicate between client and server
+
     Tasks:
      * (GET) Get single customer: https://seytech-customers-backend.herokuapp.com/api/v1/customer/:id
      Provide id in params
@@ -63,6 +78,17 @@ Seytech Customers CRUD application.
     * (PATCH) Update a customer: https://seytech-customers-backend.herokuapp.com/api/v1/customer/:id
     Provide data in body and id in params
 
+## Day 4 - 11/27/2020
+
+    * Lots of Code Cleanup
+    * Remove token from localstorage and instead use cookies
+
+## Day 5 - 11/30/2020
+
+    * Lots of Code Cleanup
+    * CRUD
+    * Client form validation
+
 #### Order of branches:
 
     1. master
@@ -70,3 +96,4 @@ Seytech Customers CRUD application.
     3. crud-validation-fetch
     4. search-sort
     5. pagination
+    6. context-api : themes, css styling

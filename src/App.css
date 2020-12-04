@@ -1,39 +1,103 @@
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
-.app {
-    width: 200px;
-    margin: 0 auto;
-}
+
+/* .app {
+  width: 200px;
+  margin: 0 auto;
+} */
+
+/* Customers */
 .customers img {
-    width: 50px;
-    border-radius: 50px;
+  width: 50px;
+  border-radius: 50px;
 }
-.row {
-    border-bottom: solid 1px #aaa;
-    padding: 5px;
-    padding-left: 20px;
+.search-wrapper {
+  /* border-bottom: solid 1px #aaa;
+  padding: 5px;
+  padding-left: 20px; */
+  /* border: 1px solid red; */
+  flex: 1;
 }
-.row .title {
-    font-weight: bold;
+.search-input,
+.search-select {
+  margin-bottom: 10px;
 }
-.row .title, .row .desc {
-    padding-left: 10px;
-    display: inline-block;
-}
+
+/* MENU */
 .menu {
-    margin-top: 10px;
+  list-style: none;
+  display: flex;
+  justify-content: flex-end;
+  padding: 5px;
+  border-bottom: 1px solid gray;
 }
 .menu li {
-    display: inline-block;
-    margin: 0 5px;
-    background-color: #ddd;
-    padding: 3px 10px;
-    border-radius: 10px;
+  margin-left: 50px;
 }
-.actions {
-    margin: 10px;
+
+/* .login-container {
+  border: 1px solid red;
 }
-.actions button{
-    margin-right: 10px;
+.customers-wrapper {
+  border: 1px solid red;
+} */
+.customers-wrapper table {
+  font-size: 12px;
+}
+.customers-wrapper table .btn {
+  font-size: 12px;
+  padding: 2px 4px;
+}
+
+/* single Customer page */
+.single-customer-wrapper {
+  border: 1px solid gray;
+}
+.single-customer-wrapper .row {
+  border-bottom: 1px solid gray;
+  display: flex;
+}
+.single-customer-wrapper .title {
+  flex: 1;
+  border-right: 1px solid gray;
+  padding: 5px;
+}
+.single-customer-wrapper .desc {
+  flex: 4;
+  padding: 5px;
+}
+.single-customer-wrapper .desc input {
+  width: 100%;
+}
+.single-customer-wrapper .btn {
+  margin: 10px;
+}
+
+/*  pagination */
+.pagination {
+  margin: 10px auto;
+  font-size: 12px;
+  font-weight: 600;
+}
+.arrow {
+  /* display: inline-block; */
+  padding: 8px;
+  margin: 1px;
+  border: 1px solid #d8d8d8;
+  overflow: hidden;
+  cursor: pointer;
+}
+.arrow.active {
+  background-color: #007bff;
+  color: #fff;
+}
+.prev,
+.next {
+  padding-right: 12px;
+  padding-left: 12px;
+}
+
+.arrow.disabled {
+  color: lightgray;
 }

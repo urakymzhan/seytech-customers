@@ -12,6 +12,10 @@ class Pagination extends Component {
       currentPage === 1 ? 'prev arrow disabled' : 'prev arrow';
     const nextClassName =
       currentPage === pageNumbers.length ? 'next arrow disabled' : 'next arrow';
+    const pageNumberClassName =
+      ind + 1 === currentPage
+        ? 'pageNumbers arrow active'
+        : 'pageNumbers arrow';
 
     return (
       <div className="pagination">
@@ -19,20 +23,17 @@ class Pagination extends Component {
           {'<'}
         </div>
         {pageNumbers.map((el, ind) => {
-          const cname =
-            ind + 1 === currentPage
-              ? 'pageNumbers arrow active'
-              : 'pageNumbers arrow';
           return (
-            <div className={cname} onClick={() => setPage(ind + 1)} key={ind}>
+            <div
+              className={pageNumberClassName}
+              onClick={() => setPage(ind + 1)}
+              key={ind}
+            >
               {ind + 1}
             </div>
           );
         })}
-        <div
-          onClick={() => this.props.setPage('next')}
-          className={nextClassName}
-        >
+        <div onClick={() => setPage('next')} className={nextClassName}>
           {'>'}
         </div>
       </div>

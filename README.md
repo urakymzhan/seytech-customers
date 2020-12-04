@@ -70,3 +70,4 @@ Seytech Customers CRUD application.
     3. crud-validation-fetch
     4. search-sort
     5. pagination
+    6. context-api : themes, css styling

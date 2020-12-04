@@ -6,6 +6,8 @@ import { DebounceInput } from 'react-debounce-input';
 import { Link } from 'react-router-dom';
 import AddCustomer from './AddCustomer';
 import { arrowUp, arrowDown } from '../assets/images';
+import Pagination from '../components/Pagination';
+import { customersUrl, mainUrl } from './api';
 
 const options = [
   { value: 'name', label: 'Name' },
@@ -21,12 +23,120 @@ class Customers extends Component {
       searchBy: 'name',
       sortBy: null,
       asc: false,
+
+      currentPage: 1,
+      limit: 2,
+
+      customers: [],
+      isLoading: false,
+      error: '',
+      notification: '',
     };
   }
 
   componentDidMount() {
-    this.props.getCustomers();
+    this.setState({ isLoading: true });
+    fetch(customersUrl, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          throw new Error('Server Error!');
+        }
+      })
+      .then((data) => {
+        // console.log(data);
+        this.setState({ customers: data.customers, isLoading: false });
+      })
+      .catch((err) => {
+        console.log(err);
+        this.setState({ error: err.message });
+      });
   }
+
+  // todo
+  delete = (customerId) => {
+    fetch(`${mainUrl}/customer/${customerId}`, {
+      method: 'delete',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          throw new Error('Server Error!');
+        }
+      })
+      .then((data) => {
+        if (data.message) {
+          const updatedCustomers = this.state.customers.filter(
+            (customer) => customer._id !== customerId
+          );
+          this.setState({
+            notification: data.message,
+            customers: updatedCustomers,
+          });
+        }
+        setTimeout(() => {
+          this.setState({ notification: '' });
+        }, 2500);
+      })
+      .catch((err) => {
+        this.setState({ notification: err.message });
+        setTimeout(() => {
+          this.setState({ notification: '' });
+        }, 2500);
+      });
+  };
+
+  // todo
+  addCustomer = (customer) => {
+    console.log(customer);
+    fetch(`${mainUrl}/create`, {
+      method: 'post',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(customer),
+    })
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          throw new Error('Server Error!');
+        }
+      })
+      .then((data) => {
+        if (data.customer) {
+          const updatedCustomers = [data.customer, ...this.state.customers];
+
+          this.setState({
+            notification: data.message,
+            customers: updatedCustomers,
+          });
+        }
+        setTimeout(() => {
+          this.setState({ notification: '' });
+        }, 2500);
+      })
+      .catch((err) => {
+        this.setState({ notification: err.message });
+        setTimeout(() => {
+          this.setState({ notification: '' });
+        }, 2500);
+      });
+  };
+
   onChange = (e) => {
     this.setState({ searchValue: e.target.value });
   };
@@ -40,11 +150,11 @@ class Customers extends Component {
     this.setState({ asc: !asc, sortBy });
   };
 
-  sort = (filteredCustomers, arrowIcon) => {
+  sort = (data, arrowIcon) => {
     const { sortBy, asc } = this.state;
 
     if (sortBy !== null) {
-      filteredCustomers.sort((a, b) => {
+      data.sort((a, b) => {
         if (a[sortBy] > b[sortBy]) {
           return asc ? 1 : -1;
         } else if (b[sortBy] > a[sortBy]) {
@@ -56,16 +166,58 @@ class Customers extends Component {
       arrowIcon = asc ? arrowUp : arrowDown;
     }
   };
+
+  setPage = (arrow) => {
+    const { customers, currentPage, limit } = this.state;
+
+    const rightLimit = Math.ceil(customers.length / limit);
+
+    if (arrow === 'prev' && currentPage > 1) {
+      this.setState((prevState) => ({
+        currentPage: prevState.currentPage - 1,
+        // paginationData: paginationData,
+      }));
+    } else if (arrow === 'next' && currentPage < rightLimit) {
+      this.setState((prevState) => ({
+        currentPage: prevState.currentPage + 1,
+        // paginationData: paginationData,
+      }));
+    } else if (typeof arrow === 'number') {
+      this.setState({ currentPage: arrow });
+    }
+  };
+
   render() {
-    const { customers, notification } = this.props;
-    const { searchBy, sortBy, searchValue, asc } = this.state;
-    // search
+    const { searchBy, sortBy, searchValue, limit, currentPage } = this.state;
+    const { isLoading, error, customers, notification } = this.state;
+
+    let customerContent; // todo
+
+    if (isLoading) {
+      customerContent = <div>Loading...</div>;
+    }
+
+    if (error) {
+      customerContent = (
+        <Alert color="danger">
+          <p>{error}</p>
+        </Alert>
+      );
+    }
+
+    // search from all customers
     const filteredCustomers = customers.filter((item) => {
       return item[searchBy].toLowerCase().includes(searchValue.toLowerCase());
     });
-    // sort
+    // sort all customers
     let arrowIcon;
     this.sort(filteredCustomers, arrowIcon);
+
+    // pagination
+    const start = (currentPage - 1) * limit;
+    const end = currentPage * limit;
+    const paginationData = filteredCustomers.slice(start, end);
+    const pageNumbers = customers.filter((data, idx) => !(idx % limit)); // modulus => !falsy = true
 
     return (
       <div className="customers-wrapper">
@@ -92,7 +244,7 @@ class Customers extends Component {
             </div>
           </div>
           <div style={{ flex: 1, textAlign: 'center' }}>
-            <h1>{localStorage.getItem('customerName')}</h1>
+            <h1>Welcome {localStorage.getItem('customerName')}</h1>
           </div>
         </div>
         <p>
@@ -100,7 +252,7 @@ class Customers extends Component {
             Searching by: <span style={{ color: 'orange' }}>{searchBy}</span>
           </em>
         </p>
-        <AddCustomer addCustomer={this.props.addCustomer} />
+        <AddCustomer addCustomer={this.addCustomer} />
         {notification && <Alert color="success">{notification}</Alert>}
         <Table
           striped
@@ -132,7 +284,7 @@ class Customers extends Component {
             </tr>
           </thead>
           <tbody>
-            {filteredCustomers.map((customer, ind) => {
+            {paginationData.map((customer, ind) => {
               const {
                 _id,
                 name,
@@ -147,17 +299,23 @@ class Customers extends Component {
                 payments,
                 createdAt,
               } = customer;
-              const url = `/customer/${_id}`;
-              const urlEdit = `/customer/${_id}/edit`;
+              const singleCustomerUrl = `/customer/${_id}`;
+              const singleCustomerEditUrl = `/customer/${_id}/edit`;
               return (
                 <tr key={_id}>
-                  <th scope="row">{ind + 1}</th>
+                  <td>{ind + 1}</td>
                   <td>
                     <img src={avatar} alt="customers avatars" />
                   </td>
                   <td>
                     {' '}
-                    <Link to={url}>{name}</Link>{' '}
+                    <Link
+                      to={{
+                        pathname: singleCustomerUrl,
+                      }}
+                    >
+                      {name}
+                    </Link>{' '}
                   </td>
                   <td>{lastName}</td>
                   {state ? <td>{state}</td> : <td>N/A</td>}
@@ -173,10 +331,10 @@ class Customers extends Component {
 
                   {github ? <td>{github}</td> : <td>N/A</td>}
 
-                  {createdAt}
+                  <td>{createdAt}</td>
                   <td>
                     <Button color="primary">
-                      <Link className="text-white" to={urlEdit}>
+                      <Link className="text-white" to={singleCustomerEditUrl}>
                         Edit
                       </Link>
                     </Button>
@@ -184,7 +342,6 @@ class Customers extends Component {
                   <td>
                     {localStorage.getItem('customerId') === _id ? (
                       <Button
-                        color="primary"
                         onClick={() => this.props.delete(_id)}
                         color="danger"
                         disabled
@@ -193,7 +350,6 @@ class Customers extends Component {
                       </Button>
                     ) : (
                       <Button
-                        color="primary"
                         onClick={() => this.props.delete(_id)}
                         color="danger"
                       >
@@ -206,6 +362,12 @@ class Customers extends Component {
             })}
           </tbody>
         </Table>
+
+        <Pagination
+          setPage={this.setPage}
+          pageNumbers={pageNumbers}
+          currentPage={currentPage}
+        />
       </div>
     );
   }

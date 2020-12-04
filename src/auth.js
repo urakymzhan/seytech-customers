@@ -9,4 +9,13 @@
 // IN DEVELOPMENT
 export const getAccessToken = () => localStorage.getItem('token');
 export const isAuthenticated = () => !!getAccessToken();
-export const removeToken = () => localStorage.removeItem('token');
+export const removeToken = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('customerName');
+  localStorage.removeItem('customerId');
+};
+export const setToken = (customer, token) => {
+  localStorage.setItem('token', token);
+  localStorage.setItem('customerName', customer.name);
+  localStorage.setItem('customerId', customer._id);
+};

@@ -28,9 +28,12 @@
 .menu {
   list-style: none;
   display: flex;
-  justify-content: space-between;
-  padding: 10px 0;
+  justify-content: flex-end;
+  padding: 5px;
   border-bottom: 1px solid gray;
+}
+.menu li {
+  margin-left: 50px;
 }
 
 /* .login-container {
@@ -69,4 +72,32 @@
 }
 .single-customer-wrapper .btn {
   margin: 10px;
+}
+
+/*  pagination */
+.pagination {
+  margin: 10px auto;
+  font-size: 12px;
+  font-weight: 600;
+}
+.arrow {
+  /* display: inline-block; */
+  padding: 8px;
+  margin: 1px;
+  border: 1px solid #d8d8d8;
+  overflow: hidden;
+  cursor: pointer;
+}
+.arrow.active {
+  background-color: #007bff;
+  color: #fff;
+}
+.prev,
+.next {
+  padding-right: 12px;
+  padding-left: 12px;
+}
+
+.arrow.disabled {
+  color: lightgray;
 }

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Suspense } from 'react';
 import './App.css';
 import { BrowserRouter as Router } from 'react-router-dom';
 // import Cookies from 'js-cookie';
@@ -28,12 +28,14 @@ class App extends Component {
   };
   render() {
     return (
-      <Router>
-        <Navbar logOut={this.logOut} />
-        <Layout>
-          <Routes onLoginSubmit={this.onLoginSubmit} />
-        </Layout>
-      </Router>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Router>
+          <Navbar logOut={this.logOut} />
+          <Layout>
+            <Routes onLoginSubmit={this.onLoginSubmit} />
+          </Layout>
+        </Router>
+      </Suspense>
     );
   }
 }

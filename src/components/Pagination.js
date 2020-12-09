@@ -1,10 +1,6 @@
 import React, { Component } from 'react';
 
 class Pagination extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { currentPage, pageNumbers, setPage } = this.props;
 
@@ -12,10 +8,6 @@ class Pagination extends Component {
       currentPage === 1 ? 'prev arrow disabled' : 'prev arrow';
     const nextClassName =
       currentPage === pageNumbers.length ? 'next arrow disabled' : 'next arrow';
-    const pageNumberClassName =
-      ind + 1 === currentPage
-        ? 'pageNumbers arrow active'
-        : 'pageNumbers arrow';
 
     return (
       <div className="pagination">
@@ -23,6 +15,10 @@ class Pagination extends Component {
           {'<'}
         </div>
         {pageNumbers.map((el, ind) => {
+          const pageNumberClassName =
+            ind + 1 === currentPage
+              ? 'pageNumbers arrow active'
+              : 'pageNumbers arrow';
           return (
             <div
               className={pageNumberClassName}

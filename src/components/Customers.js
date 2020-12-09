@@ -59,8 +59,7 @@ class Customers extends Component {
         this.setState({ error: err.message });
       });
   }
-
-  // todo
+  // todo: rename this function
   delete = (customerId) => {
     fetch(`${mainUrl}/customer/${customerId}`, {
       method: 'delete',
@@ -98,7 +97,6 @@ class Customers extends Component {
       });
   };
 
-  // todo
   addCustomer = (customer) => {
     console.log(customer);
     fetch(`${mainUrl}/create`, {
@@ -194,7 +192,7 @@ class Customers extends Component {
     let customerContent; // todo
 
     if (isLoading) {
-      customerContent = <div>Loading...</div>;
+      customerContent = <div style={{ margin: '20px' }}>Loading...</div>;
     }
 
     if (error) {
@@ -205,19 +203,143 @@ class Customers extends Component {
       );
     }
 
-    // search from all customers
-    const filteredCustomers = customers.filter((item) => {
-      return item[searchBy].toLowerCase().includes(searchValue.toLowerCase());
-    });
-    // sort all customers
-    let arrowIcon;
-    this.sort(filteredCustomers, arrowIcon);
+    if (customers && customers.length > 0) {
+      // search from all customers
+      const filteredCustomers = customers.filter((item) => {
+        return item[searchBy].toLowerCase().includes(searchValue.toLowerCase());
+      });
+      // sort all customers
+      let arrowIcon;
+      this.sort(filteredCustomers, arrowIcon);
 
-    // pagination
-    const start = (currentPage - 1) * limit;
-    const end = currentPage * limit;
-    const paginationData = filteredCustomers.slice(start, end);
-    const pageNumbers = customers.filter((data, idx) => !(idx % limit)); // modulus => !falsy = true
+      // pagination
+      const start = (currentPage - 1) * limit;
+      const end = currentPage * limit;
+      const paginationData = filteredCustomers.slice(start, end);
+      const pageNumbers = customers.filter((d, idx) => !(idx % limit)); // modulus => !falsy = true
+
+      console.log('pageNumbers', pageNumbers);
+      //  0, 1, 2, 3 => 0 % 2 = 0(false), 1 % 2 = 1(true) , 2 % 2 = 0(false), 3 % 2 = 1(true)
+
+      customerContent = (
+        <React.Fragment>
+          <Table
+            striped
+            bordered
+            responsive
+            className="customers"
+            style={{ marginTop: '10px' }}
+          >
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Avatar</th>
+                <th onClick={() => this.sortBy('name')}>
+                  Name {sortBy === 'name' && arrowIcon}
+                </th>
+                <th>Last Name</th>
+                <th>State</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Payment</th>
+                <th>Courses</th>
+                <th>Role</th>
+                <th>Github</th>
+                <th onClick={() => this.sortBy('createdAt')}>
+                  CreatedAt {sortBy === 'createdAt' && arrowIcon}
+                </th>
+                <th>Edit</th>
+                <th>Delete</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginationData.map((customer, ind) => {
+                const {
+                  _id,
+                  name,
+                  lastName,
+                  avatar,
+                  email,
+                  state,
+                  phone,
+                  role,
+                  github,
+                  courses,
+                  payments,
+                  createdAt,
+                } = customer;
+                const singleCustomerUrl = `/customer/${_id}`;
+                const singleCustomerEditUrl = `/customer/${_id}/edit`;
+                return (
+                  <tr key={_id}>
+                    <td>{ind + 1}</td>
+                    <td>
+                      <img src={avatar} alt="customers avatars" />
+                    </td>
+                    <td>
+                      {' '}
+                      <Link
+                        to={{
+                          pathname: singleCustomerUrl,
+                        }}
+                      >
+                        {name}
+                      </Link>{' '}
+                    </td>
+                    <td>{lastName}</td>
+                    {state ? <td>{state}</td> : <td>N/A</td>}
+                    <td>{email}</td>
+                    {phone ? <td>{phone}</td> : <td>N/A</td>}
+
+                    {payments ? <td>{payments}</td> : <td>N/A</td>}
+
+                    {courses ? <td>{courses}</td> : <td>N/A</td>}
+
+                    {/* todo */}
+                    {role ? <td>{role}</td> : <td>Not Assigned</td>}
+
+                    {github ? <td>{github}</td> : <td>N/A</td>}
+
+                    <td>{createdAt}</td>
+                    <td>
+                      <Button color="primary">
+                        <Link className="text-white" to={singleCustomerEditUrl}>
+                          Edit
+                        </Link>
+                      </Button>
+                    </td>
+                    <td>
+                      {localStorage.getItem('customerId') === _id ? (
+                        <Button
+                          onClick={() => this.props.delete(_id)}
+                          color="danger"
+                          disabled
+                        >
+                          Delete
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={() => this.props.delete(_id)}
+                          color="danger"
+                        >
+                          Delete
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
+
+          <Pagination
+            setPage={this.setPage}
+            pageNumbers={pageNumbers}
+            currentPage={currentPage}
+          />
+        </React.Fragment>
+      );
+    }
 
     return (
       <div className="customers-wrapper">
@@ -254,120 +376,7 @@ class Customers extends Component {
         </p>
         <AddCustomer addCustomer={this.addCustomer} />
         {notification && <Alert color="success">{notification}</Alert>}
-        <Table
-          striped
-          bordered
-          responsive
-          className="customers"
-          style={{ marginTop: '10px' }}
-        >
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Avatar</th>
-              <th onClick={() => this.sortBy('name')}>
-                Name {sortBy === 'name' && arrowIcon}
-              </th>
-              <th>Last Name</th>
-              <th>State</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Payment</th>
-              <th>Courses</th>
-              <th>Role</th>
-              <th>Github</th>
-              <th onClick={() => this.sortBy('createdAt')}>
-                CreatedAt {sortBy === 'createdAt' && arrowIcon}
-              </th>
-              <th>Edit</th>
-              <th>Delete</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginationData.map((customer, ind) => {
-              const {
-                _id,
-                name,
-                lastName,
-                avatar,
-                email,
-                state,
-                phone,
-                role,
-                github,
-                courses,
-                payments,
-                createdAt,
-              } = customer;
-              const singleCustomerUrl = `/customer/${_id}`;
-              const singleCustomerEditUrl = `/customer/${_id}/edit`;
-              return (
-                <tr key={_id}>
-                  <td>{ind + 1}</td>
-                  <td>
-                    <img src={avatar} alt="customers avatars" />
-                  </td>
-                  <td>
-                    {' '}
-                    <Link
-                      to={{
-                        pathname: singleCustomerUrl,
-                      }}
-                    >
-                      {name}
-                    </Link>{' '}
-                  </td>
-                  <td>{lastName}</td>
-                  {state ? <td>{state}</td> : <td>N/A</td>}
-                  <td>{email}</td>
-                  {phone ? <td>{phone}</td> : <td>N/A</td>}
-
-                  {payments ? <td>{payments}</td> : <td>N/A</td>}
-
-                  {courses ? <td>{courses}</td> : <td>N/A</td>}
-
-                  {/* todo */}
-                  {role ? <td>{role}</td> : <td>Not Assigned</td>}
-
-                  {github ? <td>{github}</td> : <td>N/A</td>}
-
-                  <td>{createdAt}</td>
-                  <td>
-                    <Button color="primary">
-                      <Link className="text-white" to={singleCustomerEditUrl}>
-                        Edit
-                      </Link>
-                    </Button>
-                  </td>
-                  <td>
-                    {localStorage.getItem('customerId') === _id ? (
-                      <Button
-                        onClick={() => this.props.delete(_id)}
-                        color="danger"
-                        disabled
-                      >
-                        Delete
-                      </Button>
-                    ) : (
-                      <Button
-                        onClick={() => this.props.delete(_id)}
-                        color="danger"
-                      >
-                        Delete
-                      </Button>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </Table>
-
-        <Pagination
-          setPage={this.setPage}
-          pageNumbers={pageNumbers}
-          currentPage={currentPage}
-        />
+        {customerContent}
       </div>
     );
   }

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   Modal,
@@ -27,262 +27,242 @@ const emptyCustomer = {
   repl: '',
 };
 
-class AddCustomer extends Component {
-  constructor() {
-    super();
-    this.state = {
-      modal: false,
-      customer: emptyCustomer,
-      isValid: false,
-    };
-  }
+const AddCustomer = (props) => {
+  const [modal, setModal] = useState(false);
+  const [customer, setCustomer] = useState(emptyCustomer);
+  const [isValid, setIsValid] = useState(false);
 
-  toggle = () => this.setState({ modal: !this.state.modal });
+  const toggle = () => setModal(!modal);
 
-  onChange = (e) => {
-    const { customer } = this.state;
+  const onChange = (e) => {
     const { id, value } = e.target;
-    customer[id] = value;
     if (id === 'courses') {
       const courses = value.split(',');
-      customer[id] = courses; // courses['courses'] = ['JS', 'React', ...]
+      customer[id] = courses;
     }
-    this.setState({ customer });
+    setCustomer((customer) => ({
+      ...customer,
+      [id]: value,
+    }));
   };
 
-  add = (e) => {
+  const add = (e) => {
     e.preventDefault();
-    const { name, lastName, email, password } = this.state.customer;
+    const { name, lastName, email, password } = customer;
     if (name === '' || lastName === '' || email === '' || password === '') {
-      this.setState({ isValid: true, modal: true });
+      setIsValid(true);
+      setModal(true);
     } else {
-      this.props.addCustomer(this.state.customer);
-      this.toggle();
+      props.addCustomer(customer);
+      toggle();
       // reset customer
-      const customer = { ...emptyCustomer };
-      this.setState({ customer });
+      const resetCustomer = { ...emptyCustomer };
+      setCustomer(resetCustomer);
     }
   };
 
-  render() {
-    const { modal, isValid } = this.state;
-    const {
-      name,
-      lastName,
-      avatar,
-      email,
-      password,
-      state,
-      phone,
-      role,
-      github,
-      courses,
-      payments,
-      repl,
-    } = this.state.customer;
-    return (
-      <div>
-        <Button color="primary" onClick={this.toggle}>
-          Add new customer
-        </Button>
-        <Modal isOpen={modal} toggle={this.toggle}>
-          <ModalHeader toggle={this.toggle}>Add new customer</ModalHeader>
-          <ModalBody>
-            <Form>
-              <FormGroup row>
-                <Col sm={10}>
-                  <Input
-                    onChange={this.onChange}
-                    value={name}
-                    type="text"
-                    name="name"
-                    id="name"
-                    placeholder="Name. ex: John ... "
-                  />
-                  {isValid ? (
-                    <FormText color="danger">
-                      This field can not be empty!
-                    </FormText>
-                  ) : (
-                    ''
-                  )}
-                </Col>
-              </FormGroup>
-              <FormGroup row>
-                <Col sm={10}>
-                  <Input
-                    onChange={this.onChange}
-                    value={lastName}
-                    type="text"
-                    name="lastName"
-                    id="lastName"
-                    placeholder="LastName. ex: Doe ... "
-                  />
-                  {isValid ? (
-                    <FormText color="danger">
-                      This field can not be empty!
-                    </FormText>
-                  ) : (
-                    ''
-                  )}
-                </Col>
-              </FormGroup>
-              <FormGroup row>
-                <Col sm={10}>
-                  <Input
-                    onChange={this.onChange}
-                    value={avatar}
-                    type="text"
-                    name="avatar"
-                    id="avatar"
-                    placeholder="Avatar url. ex: https://myavatars.com/me.jpg ..."
-                  />
-                </Col>
-              </FormGroup>
-              <FormGroup row>
-                <Col sm={10}>
-                  <Input
-                    onChange={this.onChange}
-                    value={email}
-                    type="email"
-                    name="email"
-                    id="email"
-                    placeholder="Email. ex: john@doe.com ... "
-                  />
-                  {isValid ? (
-                    <FormText color="danger">
-                      This field can not be empty!
-                    </FormText>
-                  ) : (
-                    ''
-                  )}
-                </Col>
-              </FormGroup>
-              <FormGroup row>
-                <Col sm={10}>
-                  <Input
-                    onChange={this.onChange}
-                    value={password}
-                    type="password"
-                    name="password"
-                    id="password"
-                    placeholder="Password. Min 4 charachters"
-                  />
-                  {isValid ? (
-                    <FormText color="danger">
-                      This field can not be empty!
-                    </FormText>
-                  ) : (
-                    ''
-                  )}
-                </Col>
-              </FormGroup>
-              <FormGroup row>
-                <Col sm={10}>
-                  <Input
-                    onChange={this.onChange}
-                    value={state}
-                    type="text"
-                    name="state"
-                    id="state"
-                    placeholder="State. ex: CA, WA ..."
-                  />
-                </Col>
-              </FormGroup>
-              <FormGroup row>
-                <Col sm={10}>
-                  <Input
-                    onChange={this.onChange}
-                    value={phone}
-                    type="text"
-                    name="phone"
-                    id="phone"
-                    placeholder="123 456 6789"
-                  />
-                </Col>
-              </FormGroup>
-              <FormGroup tag="fieldset" row>
-                <Col sm={10}>
-                  <Input
-                    onChange={this.onChange}
-                    type="select"
-                    name="role"
-                    id="role"
-                    value={role}
-                    placeholder="Role"
-                  >
-                    <option value="">-- Select role --</option>
-                    <option value="customer">Customer</option>
-                    <option value="manager">Manager</option>
-                    <option value="admin">Admin</option>
-                  </Input>
-                </Col>
-              </FormGroup>
-              <FormGroup row>
-                <Col sm={10}>
-                  <Input
-                    onChange={this.onChange}
-                    value={github}
-                    type="text"
-                    name="github"
-                    id="github"
-                    placeholder="Github. ex: https://github.com/johndoe ..."
-                  />
-                </Col>
-              </FormGroup>
-              <FormGroup row>
-                <Col sm={10}>
-                  <Input
-                    onChange={this.onChange}
-                    value={courses}
-                    type="text"
-                    name="courses"
-                    id="courses"
-                    placeholder="Courses. ex: React, JS, CSS, ..."
-                  />
-                </Col>
-              </FormGroup>
-              <FormGroup row>
-                {/* <Label for="payments" sm={2}>
+  return (
+    <div>
+      <Button color="primary" onClick={toggle}>
+        Add new customer
+      </Button>
+      <Modal isOpen={modal} toggle={toggle}>
+        <ModalHeader toggle={toggle}>Add new customer</ModalHeader>
+        <ModalBody>
+          <Form>
+            <FormGroup row>
+              <Col sm={10}>
+                <Input
+                  onChange={onChange}
+                  value={customer.name}
+                  type="text"
+                  name="name"
+                  id="name"
+                  placeholder="Name. ex: John ... "
+                />
+                {isValid ? (
+                  <FormText color="danger">
+                    This field can not be empty!
+                  </FormText>
+                ) : (
+                  ''
+                )}
+              </Col>
+            </FormGroup>
+            <FormGroup row>
+              <Col sm={10}>
+                <Input
+                  onChange={onChange}
+                  value={customer.lastName}
+                  type="text"
+                  name="lastName"
+                  id="lastName"
+                  placeholder="LastName. ex: Doe ... "
+                />
+                {isValid ? (
+                  <FormText color="danger">
+                    This field can not be empty!
+                  </FormText>
+                ) : (
+                  ''
+                )}
+              </Col>
+            </FormGroup>
+            <FormGroup row>
+              <Col sm={10}>
+                <Input
+                  onChange={onChange}
+                  value={customer.avatar}
+                  type="text"
+                  name="avatar"
+                  id="avatar"
+                  placeholder="Avatar url. ex: https://myavatars.com/me.jpg ..."
+                />
+              </Col>
+            </FormGroup>
+            <FormGroup row>
+              <Col sm={10}>
+                <Input
+                  onChange={onChange}
+                  value={customer.email}
+                  type="email"
+                  name="email"
+                  id="email"
+                  placeholder="Email. ex: john@doe.com ... "
+                />
+                {isValid ? (
+                  <FormText color="danger">
+                    This field can not be empty!
+                  </FormText>
+                ) : (
+                  ''
+                )}
+              </Col>
+            </FormGroup>
+            <FormGroup row>
+              <Col sm={10}>
+                <Input
+                  onChange={onChange}
+                  value={customer.password}
+                  type="password"
+                  name="password"
+                  id="password"
+                  placeholder="Password. Min 4 charachters"
+                />
+                {isValid ? (
+                  <FormText color="danger">
+                    This field can not be empty!
+                  </FormText>
+                ) : (
+                  ''
+                )}
+              </Col>
+            </FormGroup>
+            <FormGroup row>
+              <Col sm={10}>
+                <Input
+                  onChange={onChange}
+                  value={customer.state}
+                  type="text"
+                  name="state"
+                  id="state"
+                  placeholder="State. ex: CA, WA ..."
+                />
+              </Col>
+            </FormGroup>
+            <FormGroup row>
+              <Col sm={10}>
+                <Input
+                  onChange={onChange}
+                  value={customer.phone}
+                  type="text"
+                  name="phone"
+                  id="phone"
+                  placeholder="123 456 6789"
+                />
+              </Col>
+            </FormGroup>
+            <FormGroup tag="fieldset" row>
+              <Col sm={10}>
+                <Input
+                  onChange={onChange}
+                  type="select"
+                  name="role"
+                  id="role"
+                  value={customer.role}
+                  placeholder="Role"
+                >
+                  <option value="">-- Select role --</option>
+                  <option value="customer">Customer</option>
+                  <option value="manager">Manager</option>
+                  <option value="admin">Admin</option>
+                </Input>
+              </Col>
+            </FormGroup>
+            <FormGroup row>
+              <Col sm={10}>
+                <Input
+                  onChange={onChange}
+                  value={customer.github}
+                  type="text"
+                  name="github"
+                  id="github"
+                  placeholder="Github. ex: https://github.com/johndoe ..."
+                />
+              </Col>
+            </FormGroup>
+            <FormGroup row>
+              <Col sm={10}>
+                <Input
+                  onChange={onChange}
+                  value={customer.courses}
+                  type="text"
+                  name="courses"
+                  id="courses"
+                  placeholder="Courses. ex: React, JS, CSS, ..."
+                />
+              </Col>
+            </FormGroup>
+            <FormGroup row>
+              {/* <Label for="payments" sm={2}>
                   Payments
                 </Label> */}
-                <Col sm={10}>
-                  <Input
-                    onChange={this.onChange}
-                    value={payments}
-                    type="number"
-                    name="payments"
-                    id="payments"
-                    placeholder="Payments"
-                  />
-                </Col>
-              </FormGroup>
-              <FormGroup row>
-                <Col sm={10}>
-                  <Input
-                    onChange={this.onChange}
-                    value={repl}
-                    type="text"
-                    name="repl"
-                    id="repl"
-                    placeholder="Repl. ex: https://repl.it/johndoe ..."
-                  />
-                </Col>
-              </FormGroup>
-            </Form>
-          </ModalBody>
-          <ModalFooter>
-            <Button color="primary" onClick={this.add}>
-              Add
-            </Button>{' '}
-            <Button color="secondary" onClick={this.toggle}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </Modal>
-      </div>
-    );
-  }
-}
+              <Col sm={10}>
+                <Input
+                  onChange={onChange}
+                  value={customer.payments}
+                  type="number"
+                  name="payments"
+                  id="payments"
+                  placeholder="Payments"
+                />
+              </Col>
+            </FormGroup>
+            <FormGroup row>
+              <Col sm={10}>
+                <Input
+                  onChange={onChange}
+                  value={customer.repl}
+                  type="text"
+                  name="repl"
+                  id="repl"
+                  placeholder="Repl. ex: https://repl.it/johndoe ..."
+                />
+              </Col>
+            </FormGroup>
+          </Form>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="primary" onClick={add}>
+            Add
+          </Button>{' '}
+          <Button color="secondary" onClick={toggle}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
+    </div>
+  );
+};
 
 export default AddCustomer;

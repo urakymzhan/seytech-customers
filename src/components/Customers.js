@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import { Table, Alert } from 'reactstrap';
 import Select from 'react-select';
 import { Button } from 'reactstrap';
@@ -15,27 +15,22 @@ const options = [
   { value: 'github', label: 'Github' },
 ];
 
-class Customers extends Component {
-  constructor() {
-    super();
-    this.state = {
-      searchValue: '',
-      searchBy: 'name',
-      sortBy: null,
-      asc: false,
+let timer;
+const Customers = (props) => {
+  const [searchValue, setSearchValue] = useState('');
+  const [searchBy, setSearchBy] = useState('name');
+  const [sortBy, setSortBy] = useState(null);
+  const [asc, setAsc] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit] = useState(2);
 
-      currentPage: 1,
-      limit: 2,
+  const [customers, setCustomers] = useState([]);
+  const [isLoading, seIsLoading] = useState(2);
+  const [error, setError] = useState('');
+  const [notification, setNotification] = useState('');
 
-      customers: [],
-      isLoading: false,
-      error: '',
-      notification: '',
-    };
-  }
-
-  componentDidMount() {
-    this.setState({ isLoading: true });
+  useEffect(() => {
+    seIsLoading(true);
     fetch(customersUrl, {
       method: 'GET',
       headers: {
@@ -51,16 +46,20 @@ class Customers extends Component {
         }
       })
       .then((data) => {
-        // console.log(data);
-        this.setState({ customers: data.customers, isLoading: false });
+        console.log(data);
+        setCustomers(data.customers);
+        seIsLoading(false);
       })
       .catch((err) => {
         console.log(err);
-        this.setState({ error: err.message });
+        setError(err.message);
       });
-  }
-  // todo: rename this function
-  delete = (customerId) => {
+    return () => {
+      clearTimeout(timer);
+    };
+  }, []);
+
+  const onDelete = (customerId) => {
     fetch(`${mainUrl}/customer/${customerId}`, {
       method: 'delete',
       headers: {
@@ -80,25 +79,22 @@ class Customers extends Component {
           const updatedCustomers = this.state.customers.filter(
             (customer) => customer._id !== customerId
           );
-          this.setState({
-            notification: data.message,
-            customers: updatedCustomers,
-          });
+          setCustomers(updatedCustomers);
+          setNotification(data.message);
         }
         setTimeout(() => {
-          this.setState({ notification: '' });
+          setNotification('');
         }, 2500);
       })
       .catch((err) => {
-        this.setState({ notification: err.message });
+        setNotification(err.message);
         setTimeout(() => {
-          this.setState({ notification: '' });
+          setNotification('');
         }, 2500);
       });
   };
 
-  addCustomer = (customer) => {
-    console.log(customer);
+  const addCustomer = (customer) => {
     fetch(`${mainUrl}/create`, {
       method: 'post',
       headers: {
@@ -116,41 +112,37 @@ class Customers extends Component {
       })
       .then((data) => {
         if (data.customer) {
-          const updatedCustomers = [data.customer, ...this.state.customers];
-
-          this.setState({
-            notification: data.message,
-            customers: updatedCustomers,
-          });
+          const updatedCustomers = [data.customer, ...customers];
+          setCustomers(updatedCustomers);
+          setNotification(data.message);
         }
-        setTimeout(() => {
-          this.setState({ notification: '' });
+        timer = setTimeout(() => {
+          setNotification('');
         }, 2500);
       })
       .catch((err) => {
-        this.setState({ notification: err.message });
-        setTimeout(() => {
-          this.setState({ notification: '' });
+        setNotification(err.message);
+        timer = setTimeout(() => {
+          setNotification('');
         }, 2500);
       });
   };
 
-  onChange = (e) => {
-    this.setState({ searchValue: e.target.value });
+  const onChange = (e) => {
+    setSearchValue(e.target.value);
   };
 
-  onSelect = (item) => {
-    this.setState({ searchBy: item.value });
+  const onSelect = (item) => {
+    setSearchBy(item.value);
   };
 
-  sortBy = (sortBy) => {
-    const { asc } = this.state;
-    this.setState({ asc: !asc, sortBy });
+  const onSortBy = (sortByVal) => {
+    setAsc(!asc);
+    setSortBy(sortByVal);
   };
 
-  sort = (data, arrowIcon) => {
-    const { sortBy, asc } = this.state;
-
+  const onSort = (data) => {
+    let arrowIcon;
     if (sortBy !== null) {
       data.sort((a, b) => {
         if (a[sortBy] > b[sortBy]) {
@@ -160,226 +152,205 @@ class Customers extends Component {
         }
         return 1;
       });
-      // sort icon
       arrowIcon = asc ? arrowUp : arrowDown;
     }
+    return arrowIcon;
   };
 
-  setPage = (arrow) => {
-    const { customers, currentPage, limit } = this.state;
-
+  const setPage = (arrow) => {
     const rightLimit = Math.ceil(customers.length / limit);
-
     if (arrow === 'prev' && currentPage > 1) {
-      this.setState((prevState) => ({
-        currentPage: prevState.currentPage - 1,
-        // paginationData: paginationData,
-      }));
+      setCurrentPage((currentPage) => currentPage - 1);
     } else if (arrow === 'next' && currentPage < rightLimit) {
-      this.setState((prevState) => ({
-        currentPage: prevState.currentPage + 1,
-        // paginationData: paginationData,
-      }));
+      setCurrentPage((currentPage) => currentPage + 1);
     } else if (typeof arrow === 'number') {
-      this.setState({ currentPage: arrow });
+      setCurrentPage(arrow);
     }
   };
 
-  render() {
-    const { searchBy, sortBy, searchValue, limit, currentPage } = this.state;
-    const { isLoading, error, customers, notification } = this.state;
+  let customerContent;
 
-    let customerContent; // todo
+  if (isLoading) {
+    customerContent = <div style={{ margin: '20px' }}>Loading...</div>;
+  }
 
-    if (isLoading) {
-      customerContent = <div style={{ margin: '20px' }}>Loading...</div>;
-    }
-
-    if (error) {
-      customerContent = (
-        <Alert color="danger">
-          <p>{error}</p>
-        </Alert>
-      );
-    }
-
-    if (customers && customers.length > 0) {
-      // search from all customers
-      const filteredCustomers = customers.filter((item) => {
-        return item[searchBy].toLowerCase().includes(searchValue.toLowerCase());
-      });
-      // sort all customers
-      let arrowIcon;
-      this.sort(filteredCustomers, arrowIcon);
-
-      // pagination
-      const start = (currentPage - 1) * limit;
-      const end = currentPage * limit;
-      const paginationData = filteredCustomers.slice(start, end);
-      const pageNumbers = customers.filter((d, idx) => !(idx % limit)); // modulus => !falsy = true
-
-      console.log('pageNumbers', pageNumbers);
-      //  0, 1, 2, 3 => 0 % 2 = 0(false), 1 % 2 = 1(true) , 2 % 2 = 0(false), 3 % 2 = 1(true)
-
-      customerContent = (
-        <React.Fragment>
-          <Table
-            striped
-            bordered
-            responsive
-            className="customers"
-            style={{ marginTop: '10px' }}
-          >
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Avatar</th>
-                <th onClick={() => this.sortBy('name')}>
-                  Name {sortBy === 'name' && arrowIcon}
-                </th>
-                <th>Last Name</th>
-                <th>State</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Payment</th>
-                <th>Courses</th>
-                <th>Role</th>
-                <th>Github</th>
-                <th onClick={() => this.sortBy('createdAt')}>
-                  CreatedAt {sortBy === 'createdAt' && arrowIcon}
-                </th>
-                <th>Edit</th>
-                <th>Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginationData.map((customer, ind) => {
-                const {
-                  _id,
-                  name,
-                  lastName,
-                  avatar,
-                  email,
-                  state,
-                  phone,
-                  role,
-                  github,
-                  courses,
-                  payments,
-                  createdAt,
-                } = customer;
-                const singleCustomerUrl = `/customer/${_id}`;
-                const singleCustomerEditUrl = `/customer/${_id}/edit`;
-                return (
-                  <tr key={_id}>
-                    <td>{ind + 1}</td>
-                    <td>
-                      <img src={avatar} alt="customers avatars" />
-                    </td>
-                    <td>
-                      {' '}
-                      <Link
-                        to={{
-                          pathname: singleCustomerUrl,
-                        }}
-                      >
-                        {name}
-                      </Link>{' '}
-                    </td>
-                    <td>{lastName}</td>
-                    {state ? <td>{state}</td> : <td>N/A</td>}
-                    <td>{email}</td>
-                    {phone ? <td>{phone}</td> : <td>N/A</td>}
-
-                    {payments ? <td>{payments}</td> : <td>N/A</td>}
-
-                    {courses ? <td>{courses}</td> : <td>N/A</td>}
-
-                    {/* todo */}
-                    {role ? <td>{role}</td> : <td>Not Assigned</td>}
-
-                    {github ? <td>{github}</td> : <td>N/A</td>}
-
-                    <td>{createdAt}</td>
-                    <td>
-                      <Button color="primary">
-                        <Link className="text-white" to={singleCustomerEditUrl}>
-                          Edit
-                        </Link>
-                      </Button>
-                    </td>
-                    <td>
-                      {localStorage.getItem('customerId') === _id ? (
-                        <Button
-                          onClick={() => this.props.delete(_id)}
-                          color="danger"
-                          disabled
-                        >
-                          Delete
-                        </Button>
-                      ) : (
-                        <Button
-                          onClick={() => this.props.delete(_id)}
-                          color="danger"
-                        >
-                          Delete
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </Table>
-
-          <Pagination
-            setPage={this.setPage}
-            pageNumbers={pageNumbers}
-            currentPage={currentPage}
-          />
-        </React.Fragment>
-      );
-    }
-
-    return (
-      <div className="customers-wrapper">
-        <div style={{ display: 'flex' }}>
-          <div className="search-wrapper">
-            <div className="search-input">
-              <DebounceInput
-                minLength={0}
-                onChange={this.onChange}
-                debounceTimeout={300}
-                style={{
-                  height: '100%',
-                  width: '100%',
-                  padding: '10px',
-                  border: '1px solid lightgray',
-                  borderRadius: '5px',
-                }}
-                placeholder="Search customers ..."
-              />
-            </div>
-            <div className="search-select">
-              {' '}
-              <Select onChange={this.onSelect} options={options} />
-            </div>
-          </div>
-          <div style={{ flex: 1, textAlign: 'center' }}>
-            <h1>Welcome {localStorage.getItem('customerName')}</h1>
-          </div>
-        </div>
-        <p>
-          <em>
-            Searching by: <span style={{ color: 'orange' }}>{searchBy}</span>
-          </em>
-        </p>
-        <AddCustomer addCustomer={this.addCustomer} />
-        {notification && <Alert color="success">{notification}</Alert>}
-        {customerContent}
-      </div>
+  if (error) {
+    customerContent = (
+      <Alert color="danger">
+        <p>{error}</p>
+      </Alert>
     );
   }
-}
+
+  if (customers && customers.length > 0) {
+    // search from all customers
+    const filteredCustomers = customers.filter((item) => {
+      return item[searchBy].toLowerCase().includes(searchValue.toLowerCase());
+    });
+    // sort all customers
+    const arrowIcon = onSort(filteredCustomers);
+
+    // pagination
+    const start = (currentPage - 1) * limit;
+    const end = currentPage * limit;
+    const paginationData = filteredCustomers.slice(start, end);
+    const pageNumbers = customers.filter((d, idx) => !(idx % limit));
+
+    customerContent = (
+      <React.Fragment>
+        <Table
+          striped
+          bordered
+          responsive
+          className="customers"
+          style={{ marginTop: '10px' }}
+        >
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Avatar</th>
+              <th onClick={() => onSortBy('name')}>
+                Name {sortBy === 'name' && arrowIcon}
+              </th>
+              <th>Last Name</th>
+              <th>State</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Payment</th>
+              <th>Courses</th>
+              <th>Role</th>
+              <th>Github</th>
+              <th onClick={() => onSortBy('createdAt')}>
+                CreatedAt {sortBy === 'createdAt' && arrowIcon}
+              </th>
+              <th>Edit</th>
+              <th>Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            {paginationData.map((customer, ind) => {
+              const {
+                _id,
+                name,
+                lastName,
+                avatar,
+                email,
+                state,
+                phone,
+                role,
+                github,
+                courses,
+                payments,
+                createdAt,
+              } = customer;
+              const singleCustomerUrl = `/customer/${_id}`;
+              const singleCustomerEditUrl = `/customer/${_id}/edit`;
+              return (
+                <tr key={_id}>
+                  <td>{ind + 1}</td>
+                  <td>
+                    <img src={avatar} alt="customers avatars" />
+                  </td>
+                  <td>
+                    {' '}
+                    <Link
+                      to={{
+                        pathname: singleCustomerUrl,
+                      }}
+                    >
+                      {name}
+                    </Link>{' '}
+                  </td>
+                  <td>{lastName}</td>
+                  {state ? <td>{state}</td> : <td>N/A</td>}
+                  <td>{email}</td>
+                  {phone ? <td>{phone}</td> : <td>N/A</td>}
+
+                  {payments ? <td>{payments}</td> : <td>N/A</td>}
+
+                  {courses ? <td>{courses}</td> : <td>N/A</td>}
+
+                  {/* todo */}
+                  {role ? <td>{role}</td> : <td>Not Assigned</td>}
+
+                  {github ? <td>{github}</td> : <td>N/A</td>}
+
+                  <td>{createdAt}</td>
+                  <td>
+                    <Button color="primary">
+                      <Link className="text-white" to={singleCustomerEditUrl}>
+                        Edit
+                      </Link>
+                    </Button>
+                  </td>
+                  <td>
+                    {localStorage.getItem('customerId') === _id ? (
+                      <Button
+                        onClick={() => onDelete(_id)}
+                        color="danger"
+                        disabled
+                      >
+                        Delete
+                      </Button>
+                    ) : (
+                      <Button onClick={() => onDelete(_id)} color="danger">
+                        Delete
+                      </Button>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </Table>
+
+        <Pagination
+          setPage={setPage}
+          pageNumbers={pageNumbers}
+          currentPage={currentPage}
+        />
+      </React.Fragment>
+    );
+  }
+
+  return (
+    <div className="customers-wrapper">
+      <div style={{ display: 'flex' }}>
+        <div className="search-wrapper">
+          <div className="search-input">
+            <DebounceInput
+              minLength={0}
+              onChange={onChange}
+              debounceTimeout={300}
+              style={{
+                height: '100%',
+                width: '100%',
+                padding: '10px',
+                border: '1px solid lightgray',
+                borderRadius: '5px',
+              }}
+              placeholder="Search customers ..."
+            />
+          </div>
+          <div className="search-select">
+            {' '}
+            <Select onChange={onSelect} options={options} />
+          </div>
+        </div>
+        <div style={{ flex: 1, textAlign: 'center' }}>
+          <h1>Welcome {localStorage.getItem('customerName')}</h1>
+        </div>
+      </div>
+      <p>
+        <em>
+          Searching by: <span style={{ color: 'orange' }}>{searchBy}</span>
+        </em>
+      </p>
+      <AddCustomer addCustomer={addCustomer} />
+      {notification && <Alert color="success">{notification}</Alert>}
+      {customerContent}
+    </div>
+  );
+};
 
 export default Customers;

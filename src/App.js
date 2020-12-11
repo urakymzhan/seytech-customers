@@ -1,4 +1,4 @@
-import React, { Component, Suspense } from 'react';
+import React, { useState, Suspense } from 'react';
 import './App.css';
 import { BrowserRouter as Router } from 'react-router-dom';
 // import Cookies from 'js-cookie';
@@ -6,38 +6,30 @@ import { removeToken, setToken } from './auth';
 import Navbar from './components/Navbar';
 import Routes from './Routes';
 import Layout from './components/Layout';
-class App extends Component {
-  constructor() {
-    super();
-    this.state = {
-      userInfo: {},
-    };
-  }
-  logOut = () => {
-    // in prod
-    // Cookies.remove('token');
+const App = () => {
+  const [userInfo, setUserInfo] = useState({});
+
+  const logOut = () => {
     // in dev
-    this.setState({ customerName: '' }); // todo
+    setUserInfo({}); // todo
     removeToken();
   };
 
-  onLoginSubmit = (customer, token) => {
+  const onLoginSubmit = (customer, token) => {
     // in dev
     setToken(customer, token);
-    this.setState({ userInfo: customer }); // todo
+    setUserInfo(customer); // todo
   };
-  render() {
-    return (
-      <Suspense fallback={<div>Loading...</div>}>
-        <Router>
-          <Navbar logOut={this.logOut} />
-          <Layout>
-            <Routes onLoginSubmit={this.onLoginSubmit} />
-          </Layout>
-        </Router>
-      </Suspense>
-    );
-  }
-}
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Router>
+        <Navbar logOut={logOut} />
+        <Layout>
+          <Routes onLoginSubmit={onLoginSubmit} />
+        </Layout>
+      </Router>
+    </Suspense>
+  );
+};
 
 export default App;

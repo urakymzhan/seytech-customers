@@ -148,6 +148,7 @@ const AddCustomer = (props) => {
                   name="password"
                   id="password"
                   placeholder="Password. Min 4 charachters"
+                  autoComplete="on"
                 />
                 {isValid ? (
                   <FormText color="danger">

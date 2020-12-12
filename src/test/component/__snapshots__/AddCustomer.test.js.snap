@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Customers> component tests snapshot renders 1`] = `
+<div>
+  <button
+    aria-label={null}
+    className="btn btn-primary"
+    onClick={[Function]}
+    type="button"
+  >
+    Add new customer
+  </button>
+</div>
+`;

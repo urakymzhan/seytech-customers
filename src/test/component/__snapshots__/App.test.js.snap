@@ -1,0 +1,109 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<App> component tests snapshot renders 1`] = `
+Array [
+  <ul
+    className="menu"
+  >
+    <li>
+       
+      <a
+        href="/"
+        onClick={[Function]}
+      >
+        Home
+      </a>
+       
+    </li>
+    <li>
+       
+      <a
+        href="/login"
+        onClick={[Function]}
+        style={
+          Object {
+            "background": "#007bff",
+            "borderRadius": "4px",
+            "color": "#fff",
+            "padding": "4px 6px",
+          }
+        }
+      >
+        Login
+      </a>
+       
+    </li>
+    <li>
+       
+      <a
+        href="/about"
+        onClick={[Function]}
+      >
+        About
+      </a>
+       
+    </li>
+    <li>
+       
+      <a
+        href="/contact"
+        onClick={[Function]}
+      >
+        Contact
+      </a>
+       
+    </li>
+  </ul>,
+  <div
+    className="container-xl"
+    style={
+      Object {
+        "minHeight": "100vh",
+        "padding": "10px",
+      }
+    }
+  >
+    <div>
+      <h1>
+        Seytech
+      </h1>
+      <p>
+        Fullstack Software Developer Bootcamp
+      </p>
+      <h5>
+        WHERE OUR GRADS WORK
+      </h5>
+      <h5>
+        Testimonials
+      </h5>
+      <h5>
+        AVAILABLE COURSES
+      </h5>
+      <h5>
+        Full-Time! Real Time! Online!
+      </h5>
+      <h5>
+        ACT.JS What You Will Learn!
+      </h5>
+      <h5>
+        Why Choose Use?
+      </h5>
+      <h5>
+        Our Team
+      </h5>
+      <h5>
+        AREER CAREER SERVICES
+      </h5>
+      <h5>
+        Our Alumni
+      </h5>
+      <h5>
+        Placement-Based Tuition
+      </h5>
+      <h5>
+        Get In Touch
+      </h5>
+    </div>
+  </div>,
+]
+`;
